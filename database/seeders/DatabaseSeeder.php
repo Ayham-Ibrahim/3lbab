@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Color;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Database\Seeders\RolesPermissions\PermissionSeeder;
@@ -17,7 +18,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             PermissionSeeder::class,
-            SuperAdminSeeder::class
+            SuperAdminSeeder::class,
+            ColorsSeeder::class,
+            SizesSeeder::class,
         ]);
     }
 }

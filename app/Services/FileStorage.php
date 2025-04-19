@@ -128,7 +128,7 @@ class FileStorage
     {
         $filePath = public_path($file);
         if (file_exists($filePath)) {
-            unlink($filePath);
+            Storage::disk('public')->delete($filePath);
         }
     }
 }

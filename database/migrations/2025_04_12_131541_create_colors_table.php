@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('hex_code')->unique();
+            $table->boolean('is_available')->default(false)->index();
             $table->timestamps();
         });
     }

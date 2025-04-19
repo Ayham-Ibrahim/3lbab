@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('category_store', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->unique()->constrained('categories')->cascadeOnDelete();
-            $table->foreignId('store_id')->unique()->constrained('stores')->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
+            $table->foreignId('store_id')->constrained('stores')->cascadeOnDelete();
+            $table->unique(['category_id', 'store_id']);
             $table->timestamps();
         });
     }

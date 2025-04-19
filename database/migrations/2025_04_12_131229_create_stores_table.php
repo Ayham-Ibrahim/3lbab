@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('stores', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('manager_id')->constrained('users')->cascadeOnDelete();
             $table->string('name')->unique();
             $table->string('description');
             $table->string('logo');
@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('instagram_link')->nullable();
             $table->string('youtube_link')->nullable();
             $table->string('whatsup_link')->nullable();
+            $table->string('telegram_link')->nullable();
             $table->boolean('is_available')->default(false)->index();
             $table->timestamps();
         });

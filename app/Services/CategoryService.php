@@ -19,7 +19,6 @@ class CategoryService extends Service {
             return Category::create([
                 'name'           => $data['name'],
                 'image'          => FileStorage::storeFile($data['image'], 'Category', 'img'),
-                'is_available'   => $data['is_available'],
             ]);
         } catch (\Throwable $th) {
             Log::error($th);
@@ -38,7 +37,6 @@ class CategoryService extends Service {
         try {
             $category->update(   array_filter([
                 'name' => $data['name'],
-                'is_available' => $data['is_available'],
                 'image' => FileStorage::fileExists($data['image'], $category->image, 'Category', 'img')
             ]));
             return $category;

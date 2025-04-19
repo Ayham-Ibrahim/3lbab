@@ -25,16 +25,39 @@ class CategoryController extends Controller
     public function __construct(CategoryService $categoryService)
     {
         $this->categoryService = $categoryService;
+        $this->middleware(['permission:list-categories'])->only('index');
+        $this->middleware(['permission:show-categories'])->only('show');
+        $this->middleware(['permission:store-categories'])->only('store');
+        $this->middleware(['permission:update-categories'])->only('update');
+        $this->middleware(['permission:delete-categories'])->only('destroy');
+        $this->middleware(['permission:toggle-available-categories'])->only('toggleAvailable');
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         return $this->success(
-            Category::select('id','name','image','is_available')->get(),
+            Category::select('id', 'name', 'image', 'is_available')
+                ->available($request->input('is_available'))
+                ->get(),
             'Categories retrieved successfully'
+        );
+    }
+
+    /**
+     * Retrieve all available categories.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAvailable()
+    {
+        return $this->success(
+            Category::select('id', 'name', 'image', 'is_available')
+                ->available(true)
+                ->get(),
+            'Available Sizes retrieved successfully'
         );
     }
 
@@ -71,6 +94,18 @@ class CategoryController extends Controller
             $this->categoryService->updateCategory($request->validated(), $category),
             'Category updated successfully'
         );
+    }
+
+    /**
+     * Toggle the availability status of the specified resource.
+     *
+     * @param  \App\Models\Category $category
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function toggleAvailable(Category $category)
+    {
+        $category->update(['is_available' => !$category->is_available]);
+        return $this->success($category, 'The Category has been successfully Toggled');
     }
 
     /**

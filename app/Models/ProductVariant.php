@@ -15,6 +15,7 @@ class ProductVariant extends Model
     protected $fillable = [
         'product_id',
         'color_id',
+        'size_id',
         'quantity'
     ];
 
@@ -36,5 +37,15 @@ class ProductVariant extends Model
     public function color(): BelongsTo
     {
         return $this->belongsTo(Color::class, 'color_id');
+    }
+
+    /**
+     * Get the size that owns the ProductVariant
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function size(): BelongsTo
+    {
+        return $this->belongsTo(Size::class, 'size_id');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Product;
@@ -30,6 +31,8 @@ class ProductService extends Service
             ]);
 
             $this->storeProductImages($product, $data['images']);
+
+            $this->storeProductVariants($product, $data['variants']);
             DB::commit();
 
             return $product->load('images');
@@ -58,6 +61,16 @@ class ProductService extends Service
     }
 
     /**
+     * Store new product variants
+     * @param Product $product
+     * @param array $variants
+     */
+    protected function storeProductVariants(Product $product, array $variants)
+    {
+        $product->variants()->createMany($variants);
+    }
+
+    /**
      * Updates an existing product along with its images.
      * @param mixed $data
      * @param \App\Models\Product $product
@@ -81,6 +94,10 @@ class ProductService extends Service
 
             if (isset($data['images'])) {
                 $this->updateProductImages($product, $data['images']);
+            }
+
+            if (isset($data['variants'])) {
+                $this->updateProductVariants($product, $data['variants']);
             }
 
             DB::commit();
@@ -138,4 +155,52 @@ class ProductService extends Service
         ]);
     }
 
+    /**
+     * Update product variants (create/update/delete)
+     * @param Product $product
+     * @param array $variants
+     */
+    protected function updateProductVariants(Product $product, array $variants)
+    {
+        foreach ($variants as $variant) {
+            if (isset($variant['id'])) {
+                $this->updateExistingVariant($product, $variant);
+            } else {
+                $this->addNewVariant($product, $variant);
+            }
+        }
+    }
+
+    /**
+     * Updates an existing variant of the product.
+     *
+     * @param \App\Models\Product $product The product instance.
+     * @param array $variant The variant data containing id and file.
+     */
+    protected function updateExistingVariant(Product $product, array $variant)
+    {
+        $existingVariant = $product->variants()->find($variant['id']);
+        if ($existingVariant) {
+            $existingVariant->update([
+                'color_id' => $variant['color_id'],
+                'size_id' => $variant['size_id'],
+                'quantity' => $variant['quantity']
+            ]);
+        }
+    }
+
+    /**
+     * Adds a new variant to the product.
+     *
+     * @param \App\Models\Product $product The product instance.
+     * @param array $variant The variant data containing the file.
+     */
+    protected function addNewVariant(Product $product, array $variant)
+    {
+        $product->variants()->create([
+            'color_id' => $variant['color_id'],
+            'size_id' => $variant['size_id'],
+            'quantity' => $variant['quantity']
+        ]);
+    }
 }

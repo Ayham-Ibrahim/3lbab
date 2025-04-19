@@ -7,7 +7,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -50,12 +50,12 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all of the stores for the User
+     * Get the store associated with the User
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function stores(): HasMany
+    public function store(): HasOne
     {
-        return $this->hasMany(Store::class, 'admin_id', 'id');
+        return $this->hasOne(Store::class, 'manager_id', 'id');
     }
 }
