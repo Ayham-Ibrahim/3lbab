@@ -18,7 +18,6 @@ class Size extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'type',
         'size_code',
         'is_available'
     ];

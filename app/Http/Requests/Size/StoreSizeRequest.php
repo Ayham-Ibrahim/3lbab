@@ -22,12 +22,6 @@ class StoreSizeRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'type' => [
-                'required',
-                'string',
-                'max:50',
-                'unique:sizes,type'
-            ],
             'size_code' => [
                 'required',
                 'string',
@@ -45,11 +39,6 @@ class StoreSizeRequest extends BaseFormRequest
     public function messages(): array
     {
         return [
-            'type.required' => 'نوع المقاس مطلوب',
-            'type.string' => 'نوع المقاس يجب أن يكون نصاً',
-            'type.max' => 'نوع المقاس يجب ألا يتجاوز 50 حرفاً',
-            'type.unique' => 'نوع المقاس مسجل مسبقاً',
-
             'size_code.required' => 'كود المقاس مطلوب',
             'size_code.string' => 'كود المقاس يجب أن يكون نصاً',
             'size_code.max' => 'كود المقاس يجب ألا يتجاوز 20 حرفاً',

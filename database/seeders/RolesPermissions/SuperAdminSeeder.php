@@ -16,7 +16,7 @@ class SuperAdminSeeder extends Seeder
     public function run(): void
     {
         $superAdminRole = Role::firstOrCreate(
-            ['name' => 'Super Admin', 'guard_name' => 'api']
+            ['name' => 'admin', 'guard_name' => 'api']
         );
 
         $permissions = Permission::where('guard_name', 'api')->pluck('id');
@@ -30,6 +30,6 @@ class SuperAdminSeeder extends Seeder
             ]
         );
 
-        $superAdmin->assignRole('Super Admin');
+        $superAdmin->assignRole('admin');
     }
 }

@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('sizes', function (Blueprint $table) {
             $table->id();
-            $table->string('type');
             $table->string('size_code');
             $table->boolean('is_available')->default(false)->index();
-            $table->unique(['type', 'size_code']);
+            $table->unique(['size_code']);
             $table->timestamps();
         });
     }

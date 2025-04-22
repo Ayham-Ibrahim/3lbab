@@ -19,6 +19,8 @@ class AuthService
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);
 
+        $user->assignRole('customer');
+
         // Generate token
         $token = $user->createToken('auth_token')->plainTextToken;
 

@@ -25,7 +25,8 @@ class StoreStoreRequest extends BaseFormRequest
             'manager_id' => [
                 'nullable',
                 'integer',
-                'exists:users,id'
+                'exists:users,id',
+                'unique:stores,manager_id'
             ],
             'name' => [
                 'required',

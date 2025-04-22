@@ -23,12 +23,6 @@ class UpdateSizeRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'type' => [
-                'nullable',
-                'string',
-                'max:50',
-                Rule::unique('sizes')->ignore($this->size)
-            ],
             'size_code' => [
                 'nullable',
                 'string',
@@ -46,10 +40,6 @@ class UpdateSizeRequest extends BaseFormRequest
     public function messages(): array
     {
         return [
-            'type.string' => 'نوع المقاس يجب أن يكون نصاً',
-            'type.max' => 'نوع المقاس يجب ألا يتجاوز 50 حرفاً',
-            'type.unique' => 'نوع المقاس مسجل مسبقاً',
-
             'size_code.string' => 'كود المقاس يجب أن يكون نصاً',
             'size_code.max' => 'كود المقاس يجب ألا يتجاوز 20 حرفاً',
             'size_code.unique' => 'كود المقاس مسجل مسبقاً'

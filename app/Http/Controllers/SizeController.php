@@ -29,7 +29,7 @@ class SizeController extends Controller
     public function index(Request $request)
     {
         return $this->success(
-            Size::select('id', 'type', 'size_code', 'is_available')
+            Size::select('id', 'size_code', 'is_available')
                 ->available($request->input('is_available'))
                 ->get(),
             'Sizes retrieved successfully'
@@ -44,7 +44,7 @@ class SizeController extends Controller
     public function getAvailable()
     {
         return $this->success(
-            Size::select('id', 'type', 'size_code')
+            Size::select('id', 'size_code')
                 ->available(true)
                 ->get(),
             'Available Sizes retrieved successfully'
