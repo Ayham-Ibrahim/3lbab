@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Size;
+use App\Models\User;
 use App\Models\Color;
 use App\Models\Store;
 use App\Models\Product;
@@ -71,7 +72,9 @@ class ProductController extends Controller
     {
         return $this->success(
             Product::with(['store:id,name', 'images', 'category:id,name'])
-                ->where('manager_id', Auth::id())
+                ->whereHas('store', function ($q) {
+                    $q->where('manager_id', Auth::id());
+                })
                 ->available($request->input('is_available'))
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
@@ -119,7 +122,8 @@ class ProductController extends Controller
     public function storeMyProduct(StoreMyProductRequest $request)
     {
         $data = $request->validated();
-        $store = Auth::user()->store();
+        $user_id = Auth::id();
+        $store = Store::where('manager_id',$user_id)->first();
         $data['store_id'] = $store->id;
 
         return $this->success(
@@ -188,7 +192,7 @@ class ProductController extends Controller
         $product->images()->delete();
         $product->variants()->delete();
         $product->delete();
-        return $this->success(null, 'Product deleted successfully', 204);
+        return $this->success(null, 'Product deleted successfully', 200);
     }
 
     /**
@@ -200,7 +204,7 @@ class ProductController extends Controller
     public function deleteImage(ProductImage $image)
     {
         $image->delete();
-        return $this->success(null, 'Product Image deleted successfully', 204);
+        return $this->success(null, 'Product Image deleted successfully', 200);
     }
 
     /**
@@ -212,7 +216,7 @@ class ProductController extends Controller
     public function deleteVariant(ProductVariant $variant)
     {
         $variant->delete();
-        return $this->success(null, 'Product Variant deleted successfully', 204);
+        return $this->success(null, 'Product Variant deleted successfully', 200);
     }
 
     /**

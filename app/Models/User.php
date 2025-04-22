@@ -66,6 +66,6 @@ class User extends Authenticatable
      */
     public function store(): HasOne
     {
-        return $this->hasOne(Store::class, 'manager_id', 'id');
+        return $this->hasOne(Store::class, 'manager_id');
     }
 }
