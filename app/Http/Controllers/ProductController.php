@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Product\StoreMyProductRequest;
+use App\Models\Size;
+use App\Models\Color;
+use App\Models\Store;
 use App\Models\Product;
+use App\Models\Category;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use App\Models\ProductVariant;
 use App\Services\ProductService;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ProductResource;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
-use App\Http\Resources\ProductResource;
-use App\Models\ProductImage;
-use App\Models\ProductVariant;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Product\StoreMyProductRequest;
 
 class ProductController extends Controller
 {
@@ -39,6 +43,7 @@ class ProductController extends Controller
         $this->middleware(['permission:delete-products'])->only('destroy');
         $this->middleware(['permission:delete-product-images'])->only('deleteImage');
         $this->middleware(['permission:delete-product-variants'])->only('deleteVariant');
+        $this->middleware(['permission:manage-products'])->only('getProductFormData');
     }
 
     /**
@@ -208,5 +213,42 @@ class ProductController extends Controller
     {
         $variant->delete();
         return $this->success(null, 'Product Variant deleted successfully', 204);
+    }
+
+    /**
+     * get product's form data for admin dashboard
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function getProductFormData(Request $request)
+    {
+        $productId = $request->get('product_id');
+
+        $colors = Color::available(true)->select('id', 'name','hex_code')->get();
+        $sizes = Size::available(true)->select('id', 'type','size_code')->get();
+        $stores = Store::available(true)->select('id', 'name','logo')->get();
+        $categories = Category::available(true)->select('id', 'name','image')->get();
+
+        if ($productId) {
+            $product = Product::with(['images', 'variants.color', 'variants.size', 'store', 'category'])
+                ->findOrFail($productId);
+
+            return response()->json([
+                'mode' => 'edit',
+                'product' => $product,
+                'colors' => $colors,
+                'sizes' => $sizes,
+                'stores' => $stores,
+                'categories' => $categories,
+            ]);
+        }
+
+        return response()->json([
+            'mode' => 'create',
+            'colors' => $colors,
+            'sizes' => $sizes,
+            'stores' => $stores,
+            'categories' => $categories,
+        ]);
     }
 }
