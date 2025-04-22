@@ -91,7 +91,7 @@ Route::middleware(['auth:api'])->group(function () {
             Route::get('/', [ProductController::class, 'myProducts']);
             Route::post('/', [ProductController::class, 'storeMyProduct']);
         });
-
+        Route::get('form-data', [ProductController::class, 'getProductFormData']);
         Route::delete('images/{image}', [ProductController::class, 'deleteImage']);
         Route::delete('variants/{variant}', [ProductController::class, 'deleteVariant']);
     });
