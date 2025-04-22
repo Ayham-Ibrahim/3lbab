@@ -37,7 +37,7 @@ class StoreService extends Service
      *     @var array|null  $categories      Array of category IDs to associate
      * }
      *
-     * @return \App\Models\Store
+     * @return \App\Models\Store|null
      * @throws \Exception If store creation fails
      */
     public function storeStore(array $data)
@@ -94,7 +94,7 @@ class StoreService extends Service
      * }
      * @param \App\Models\Store $store The store model to update
      *
-     * @return \App\Models\Store
+     * @return \App\Models\Store|null
      * @throws \Exception If store update fails
      */
     public function updateStore(array $data, Store $store)
