@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Product\StoreMyProductRequest;
+use App\Models\Size;
+use App\Models\User;
+use App\Models\Color;
+use App\Models\Store;
 use App\Models\Product;
+use App\Models\Category;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use App\Models\ProductVariant;
 use App\Services\ProductService;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ProductResource;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
-use App\Http\Resources\ProductResource;
-use App\Models\ProductImage;
-use App\Models\ProductVariant;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Product\StoreMyProductRequest;
 
 class ProductController extends Controller
 {
@@ -39,6 +44,7 @@ class ProductController extends Controller
         $this->middleware(['permission:delete-products'])->only('destroy');
         $this->middleware(['permission:delete-product-images'])->only('deleteImage');
         $this->middleware(['permission:delete-product-variants'])->only('deleteVariant');
+        $this->middleware(['permission:manage-products'])->only('getProductFormData');
     }
 
     /**
@@ -66,7 +72,9 @@ class ProductController extends Controller
     {
         return $this->success(
             Product::with(['store:id,name', 'images', 'category:id,name'])
-                ->where('manager_id', Auth::id())
+                ->whereHas('store', function ($q) {
+                    $q->where('manager_id', Auth::id());
+                })
                 ->available($request->input('is_available'))
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
@@ -114,7 +122,8 @@ class ProductController extends Controller
     public function storeMyProduct(StoreMyProductRequest $request)
     {
         $data = $request->validated();
-        $store = Auth::user()->store();
+        $user_id = Auth::id();
+        $store = Store::where('manager_id',$user_id)->first();
         $data['store_id'] = $store->id;
 
         return $this->success(
@@ -183,7 +192,7 @@ class ProductController extends Controller
         $product->images()->delete();
         $product->variants()->delete();
         $product->delete();
-        return $this->success(null, 'Product deleted successfully', 204);
+        return $this->success(null, 'Product deleted successfully', 200);
     }
 
     /**
@@ -195,7 +204,7 @@ class ProductController extends Controller
     public function deleteImage(ProductImage $image)
     {
         $image->delete();
-        return $this->success(null, 'Product Image deleted successfully', 204);
+        return $this->success(null, 'Product Image deleted successfully', 200);
     }
 
     /**
@@ -207,6 +216,43 @@ class ProductController extends Controller
     public function deleteVariant(ProductVariant $variant)
     {
         $variant->delete();
-        return $this->success(null, 'Product Variant deleted successfully', 204);
+        return $this->success(null, 'Product Variant deleted successfully', 200);
+    }
+
+    /**
+     * get product's form data for admin dashboard
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function getProductFormData(Request $request)
+    {
+        $productId = $request->get('product_id');
+
+        $colors = Color::available(true)->select('id', 'name','hex_code')->get();
+        $sizes = Size::available(true)->select('id', 'type','size_code')->get();
+        $stores = Store::available(true)->select('id', 'name','logo')->get();
+        $categories = Category::available(true)->select('id', 'name','image')->get();
+
+        if ($productId) {
+            $product = Product::with(['images', 'variants.color', 'variants.size', 'store', 'category'])
+                ->findOrFail($productId);
+
+            return response()->json([
+                'mode' => 'edit',
+                'product' => $product,
+                'colors' => $colors,
+                'sizes' => $sizes,
+                'stores' => $stores,
+                'categories' => $categories,
+            ]);
+        }
+
+        return response()->json([
+            'mode' => 'create',
+            'colors' => $colors,
+            'sizes' => $sizes,
+            'stores' => $stores,
+            'categories' => $categories,
+        ]);
     }
 }

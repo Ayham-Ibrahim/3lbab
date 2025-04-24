@@ -27,7 +27,7 @@ class StoreProductRequest extends BaseFormRequest
             'price'           => 'required|numeric',
             'name'            => 'required|string',
             'description'     => 'required|string',
-            'video'           => 'required|file|mimetypes:video/mp4,video/quicktime|max:10240',
+            'video'           => 'nullable|file|mimetypes:video/mp4,video/quicktime|max:10240',
             'is_available'    => 'required|boolean',
             'images'          => 'required|array',
             'images.*.file'   => 'required|file|image|mimes:png,jpg,jpeg|max:10000|mimetypes:image/jpeg,image/png,image/jpg',
