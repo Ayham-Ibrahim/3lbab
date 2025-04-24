@@ -104,18 +104,18 @@ class StoreService extends Service
 
             $store->update(
                 array_filter([
-                    'name'           => $data['name'] ?? $store->name,
-                    'description'    => $data['description'] ?? $store->description,
+                    'name'           => $data['name'] ?? null,
+                    'description'    => $data['description'] ?? null,
                     'logo'           => FileStorage::fileExists($data['logo'] ?? null, $store->logo, 'Stores', 'img'),
                     'cover'          => FileStorage::fileExists($data['cover'] ?? null, $store->cover, 'Stores', 'img'),
-                    'location'       => $data['location'] ?? $store->location,
-                    'phones'         => $data['phones'] ?? $store->phones,
-                    'email'          => $data['email'] ?? $store->email,
-                    'facebook_link'  => $data['facebook_link'] ?? $store->facebook_link,
-                    'instagram_link' => $data['instagram_link'] ?? $store->instagram_link,
-                    'youtube_link'   => $data['youtube_link'] ?? $store->youtube_link,
-                    'whatsup_link'   => $data['whatsup_link'] ?? $store->whatsup_link,
-                    'telegram_link'  => $data['telegram_link'] ?? $store->telegram_link
+                    'location'       => $data['location'] ?? null,
+                    'phones'         => $data['phones'] ?? null,
+                    'email'          => $data['email'] ?? null,
+                    'facebook_link'  => $data['facebook_link'] ?? null,
+                    'instagram_link' => $data['instagram_link'] ?? null,
+                    'youtube_link'   => $data['youtube_link'] ?? null,
+                    'whatsup_link'   => $data['whatsup_link'] ?? null,
+                    'telegram_link'  => $data['telegram_link'] ?? null
                 ])
             );
 
