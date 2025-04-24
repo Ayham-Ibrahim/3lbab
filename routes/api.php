@@ -84,14 +84,13 @@ Route::middleware(['auth:api'])->group(function () {
     | Product Routes
     |--------------------------------------------------------------------------
     */
+    Route::apiResource('products', ProductController::class)->except(['index', 'show']);
     Route::prefix('products')->group(function () {
-        Route::apiResource('/', ProductController::class)->except(['index', 'show']);
-
         Route::prefix('my')->group(function () {
             Route::get('/', [ProductController::class, 'myProducts']);
             Route::post('/', [ProductController::class, 'storeMyProduct']);
         });
-
+        Route::get('form-data', [ProductController::class, 'getProductFormData']);
         Route::delete('images/{image}', [ProductController::class, 'deleteImage']);
         Route::delete('variants/{variant}', [ProductController::class, 'deleteVariant']);
     });
