@@ -3,97 +3,114 @@
 namespace App\Services;
 
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class FileStorage
 {
     /**
-     *  Store photo and protect the site
+     * Store photo and protect the site
      *
-     * @param  string  $folderName The folder to upload the file to.
-     * @param  file  $file The name of the file input field in the request.
-     * @return string|null The url the photo url.
+     * @param  mixed  $file The uploaded file
+     * @param  string  $folderName The folder to upload the file to
+     * @param  string  $suffix The file type suffix (img, vid, aud, docs)
+     * @return string|null The url of the stored file
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */
     public static function storeFile($file, string $folderName, $suffix)
     {
-        // $file = $request->file;
-        $originalName = $file->getClientOriginalName();
+        try {
+            $originalName = $file->getClientOriginalName();
 
-        // Check for double extensions in the file name
-        if (preg_match('/\.[^.]+\./', $originalName)) {
-            throw new Exception(trans('general.notAllowedAction'), 403);
+            // Check for double extensions in the file name
+            if (preg_match('/\.[^.]+\./', $originalName)) {
+                self::throwValidationError('file', 'ان الملف الذي ارسلته غير امن');
+            }
+
+            switch ($suffix) {
+                case 'img':
+                    $allowedMimeTypes = ['image/jpeg', 'image/png'];
+                    $allowedExtensions = ['jpeg', 'png', 'jpg'];
+                    break;
+
+                case 'vid':
+                    $allowedMimeTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-ms-wmv'];
+                    $allowedExtensions = ['mp4', 'webm', 'ogg', 'mov', 'wmv'];
+                    break;
+
+                case 'aud':
+                    $allowedMimeTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/aac'];
+                    $allowedExtensions = ['mp3', 'wav', 'ogg', 'aac'];
+                    break;
+
+                case 'docs':
+                    $allowedMimeTypes = [
+                        'application/pdf',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/vnd.ms-excel',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'application/vnd.ms-powerpoint',
+                        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+                    ];
+                    $allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+                    break;
+
+                default:
+                    self::throwValidationError('file', 'ان الملف الذي ارسلته غير امن');
+            }
+
+            $mime_type = $file->getClientMimeType();
+            $extension = $file->getClientOriginalExtension();
+            Log::info("getClientMimeType: ", $mime_type);
+            Log::info("extension: ", $extension);
+
+            if (!in_array($mime_type, $allowedMimeTypes) || !in_array($extension, $allowedExtensions)) {
+                self::throwValidationError('file', 'نوع الملف غير مسموح به');
+            }
+
+            $fileName = Str::random(32);
+            $fileName = preg_replace('/[^A-Za-z0-9_\-]/', '', $fileName);
+
+            $path = $file->storeAs($folderName, $fileName . '.' . $extension, 'public');
+
+            $expectedPath = storage_path('app/public/' . $folderName . '/' . $fileName . '.' . $extension);
+            $actualPath = storage_path('app/public/' . $path);
+
+            if ($actualPath !== $expectedPath) {
+                Storage::disk('public')->delete($path);
+                self::throwValidationError('file', 'حدث خطأ أثناء حفظ الملف');
+            }
+
+            return Storage::url($path);
+        } catch (\Exception $e) {
+            self::throwValidationError('file', 'حدث خطأ أثناء معالجة الملف');
         }
-        switch ($suffix) {
-            case 'img':
-                //validate the mime type and extentions
-                $allowedMimeTypes = ['image/jpeg', 'image/png'];
-                $allowedExtensions = ['jpeg', 'png', 'jpg'];
-                break;
-
-            case 'vid':
-                //validate the mime type and extentions
-                $allowedMimeTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-ms-wmv'];
-                $allowedExtensions = ['mp4', 'webm', 'ogg', 'mov', 'wmv'];
-                break;
-
-            case 'aud':
-                //validate the mime type and extentions
-                $allowedMimeTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/aac'];
-                $allowedExtensions = ['mp3', 'wav', 'ogg', 'aac'];
-                break;
-
-            case 'docs':
-                //validate the mime type and extentions
-                $allowedMimeTypes = [
-                    'application/pdf',
-                    'application/msword',
-                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                    'application/vnd.ms-excel',
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    'application/vnd.ms-powerpoint',
-                    'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-                ];
-                $allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
-                break;
-
-            default:
-                throw new Exception(trans('general.wrong data'));
-                break;
-        }
-
-        $mime_type = $file->getClientMimeType();
-        $extension = $file->getClientOriginalExtension();
-
-        // throw new Exception("mime_type: $mime_type, extension: $extension", 1);
-
-
-        if (!in_array($mime_type, $allowedMimeTypes) || !in_array($extension, $allowedExtensions)) {
-            throw new Exception(trans('general.invalidFileType'), 403);
-        }
-
-        // Sanitize the file name to prevent path traversal
-        $fileName = Str::random(32);
-        $fileName = preg_replace('/[^A-Za-z0-9_\-]/', '', $fileName);
-
-        //store the file in the public disc
-        $path = $file->storeAs($folderName, $fileName . '.' . $extension, 'public');
-
-        //verify the path to ensure it matches the expected pattern
-        $expectedPath = storage_path('app/public/' . $folderName . '/' . $fileName . '.' . $extension);
-        $actualPath = storage_path('app/public/' . $path);
-        if ($actualPath !== $expectedPath) {
-            Storage::disk('public')->delete($path);
-            throw new Exception(trans('general.notAllowedAction'), 403);
-        }
-
-        // get the url of the stored file
-        // $url = Storage::disk('public')->url($path);
-        $url = Storage::url($path);
-        return $url;
     }
 
+    /**
+     * Throw validation error in JSON format
+     *
+     * @param string $field
+     * @param string $message
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     */
+    protected static function throwValidationError($field, $message)
+    {
+        $validator = Validator::make([], []);
+        $validator->errors()->add($field, $message);
+
+        throw new HttpResponseException(response()->json([
+            'status' => 'error',
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422));
+    }
 
     /**
      * Check if a file exists and upload it.
