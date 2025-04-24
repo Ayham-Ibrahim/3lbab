@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Models\Category;
 use App\Services\FileStorage;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Log;
 
-class CategoryService extends Service {
+class CategoryService extends Service
+{
 
     /**
      * store new category in database
@@ -22,6 +24,9 @@ class CategoryService extends Service {
             ]);
         } catch (\Throwable $th) {
             Log::error($th);
+            if ($th instanceof HttpResponseException) {
+                throw $th;
+            }
             $this->throwExceptionJson();
         }
     }
@@ -35,13 +40,16 @@ class CategoryService extends Service {
     public function updateCategory($data, Category $category)
     {
         try {
-            $category->update(   array_filter([
+            $category->update(array_filter([
                 'name' => $data['name'] ?? null,
                 'image' => FileStorage::fileExists($data['image'] ?? null, $category->image, 'Category', 'img')
             ]));
             return $category;
         } catch (\Throwable $th) {
             Log::error($th);
+            if ($th instanceof HttpResponseException) {
+                throw $th;
+            }
             $this->throwExceptionJson();
         }
     }

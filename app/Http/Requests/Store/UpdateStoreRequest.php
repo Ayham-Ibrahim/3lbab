@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Store;
 
 use App\Http\Requests\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateStoreRequest extends BaseFormRequest
 {
@@ -26,7 +27,7 @@ class UpdateStoreRequest extends BaseFormRequest
                 'nullable',
                 'string',
                 'max:255',
-                'unique:stores,name,' . $this->store
+                Rule::unique('stores')->ignore($this->store)
             ],
             'description' => [
                 'nullable',
@@ -61,7 +62,7 @@ class UpdateStoreRequest extends BaseFormRequest
                 'nullable',
                 'email:rfc,dns',
                 'max:255',
-                'unique:stores,email,' . $this->store
+                Rule::unique('stores')->ignore($this->store)
             ],
             'facebook_link' => [
                 'nullable',

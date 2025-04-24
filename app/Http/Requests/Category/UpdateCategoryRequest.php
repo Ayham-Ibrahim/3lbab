@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Category;
 
 use App\Http\Requests\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateCategoryRequest extends BaseFormRequest
 {
@@ -22,7 +23,12 @@ class UpdateCategoryRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'name' => 'nullable|string|max:255|unique:categories,name',
+            'name' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('categories')->ignore($this->category)
+            ],
             'image' => 'nullable|file|image|mimes:png,jpg,jpeg|max:10000|mimetypes:image/jpeg,image/png,image/jpg',
         ];
     }
