@@ -52,9 +52,11 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        $is_available = $request->input('is_available') == 'true' ? 1 : 0;
+
         return $this->success(
             Product::with(['store:id,name', 'images', 'category:id,name'])
-                ->available($request->input('is_available'))
+                ->available($is_available)
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
                 ->get(),
@@ -70,12 +72,14 @@ class ProductController extends Controller
      */
     public function myProducts(Request $request)
     {
+        $is_available = $request->input('is_available') == 'true' ? 1 : 0;
+
         return $this->success(
             Product::with(['store:id,name', 'images', 'category:id,name'])
                 ->whereHas('store', function ($q) {
                     $q->where('manager_id', Auth::id());
                 })
-                ->available($request->input('is_available'))
+                ->available($is_available)
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
                 ->get(),
