@@ -25,6 +25,16 @@ class Product extends Model
     ];
 
     /**
+     * Get the full URL for the product video
+     *
+     * @return string|null
+     */
+    public function getVideoAttribute()
+    {
+        return $this->attributes['video'] ? asset($this->attributes['video']) : null;
+    }
+
+    /**
      * Scope a query to filter products based on availability.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query

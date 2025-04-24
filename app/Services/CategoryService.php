@@ -37,7 +37,7 @@ class CategoryService extends Service {
         try {
             $category->update(   array_filter([
                 'name' => $data['name'],
-                'image' => FileStorage::fileExists($data['image'], $category->image, 'Category', 'img')
+                'image' => FileStorage::fileExists($data['image'] ?? null, $category->image, 'Category', 'img')
             ]));
             return $category;
         } catch (\Throwable $th) {

@@ -53,7 +53,7 @@ class Category extends Model
      */
     public function getImageAttribute()
     {
-        return $this->attributes['image'] ? asset(Storage::url($this->attributes['image'])) : null;
+        return $this->attributes['image'] ? asset($this->attributes['image']) : null;
     }
 
     /**

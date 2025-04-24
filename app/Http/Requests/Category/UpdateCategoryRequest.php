@@ -23,7 +23,7 @@ class UpdateCategoryRequest extends BaseFormRequest
     {
         return [
             'name' => 'nullable|string|max:255|unique:categories,name',
-            'image' => 'nullable|file|image|mimes:png,jpg,jpeg,gif|max:10000|mimetypes:image/jpeg,image/png,image/jpg,image/gif',
+            'image' => 'nullable|file|image|mimes:png,jpg,jpeg|max:10000|mimetypes:image/jpeg,image/png,image/jpg',
         ];
     }
 

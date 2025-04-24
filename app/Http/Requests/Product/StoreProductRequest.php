@@ -30,7 +30,7 @@ class StoreProductRequest extends BaseFormRequest
             'video'           => 'required|file|mimetypes:video/mp4,video/quicktime|max:10240',
             'is_available'    => 'required|boolean',
             'images'          => 'required|array',
-            'images.*.file'   => 'required|file|image|mimes:png,jpg,jpeg,gif|max:10000|mimetypes:image/jpeg,image/png,image/jpg,image/gif',
+            'images.*.file'   => 'required|file|image|mimes:png,jpg,jpeg|max:10000|mimetypes:image/jpeg,image/png,image/jpg',
             'variants'        => 'required|array',
             'variants.*.color_id' => [
                 'nullable',

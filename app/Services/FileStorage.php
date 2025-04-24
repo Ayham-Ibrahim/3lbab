@@ -28,8 +28,8 @@ class FileStorage
         switch ($suffix) {
             case 'img':
                 //validate the mime type and extentions
-                $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-                $allowedExtensions = ['jpeg', 'png', 'gif', 'jpg'];
+                $allowedMimeTypes = ['image/jpeg', 'image/png'];
+                $allowedExtensions = ['jpeg', 'png', 'jpg'];
                 break;
 
             case 'vid':

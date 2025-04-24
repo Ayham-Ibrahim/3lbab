@@ -88,7 +88,7 @@ class ProductService extends Service
                 'name'         => $data['name'] ?? null,
                 'description'  => $data['description'] ?? null,
                 'price'        => $data['price'] ?? null,
-                'video'        => FileStorage::fileExists($data['video'], $product->image, 'Product', 'vid'),
+                'video'        => FileStorage::fileExists($data['video'] ?? null, $product->image, 'Product', 'vid'),
                 'is_available' => $data['is_available'] ?? null,
             ]));
 

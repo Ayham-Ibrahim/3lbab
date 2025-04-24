@@ -30,7 +30,7 @@ class UpdateProductRequest extends BaseFormRequest
             'video'           => 'nullable|file|mimetypes:video/mp4,video/quicktime|max:10240',
             'is_available'    => 'nullable|boolean',
             'images'          => 'nullable|array',
-            'images.*.file'   => 'nullable|file|image|mimes:png,jpg,jpeg,gif|max:10000|mimetypes:image/jpeg,image/png,image/jpg,image/gif',
+            'images.*.file'   => 'nullable|file|image|mimes:png,jpg,jpeg|max:10000|mimetypes:image/jpeg,image/png,image/jpg',
             'variants'        => 'sometimes|array',
             'variants.*.id'   => 'nullable|integer|exists:product_variants,id',
             'variants.*.color_id' => [

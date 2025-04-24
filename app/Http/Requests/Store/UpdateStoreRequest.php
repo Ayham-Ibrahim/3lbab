@@ -36,8 +36,8 @@ class UpdateStoreRequest extends BaseFormRequest
             'logo' => [
                 'nullable',
                 'image',
-                'mimes:png,jpg,jpeg,gif',
-                'mimetypes:image/jpeg,image/png,image/jpg,image/gif',
+                'mimes:png,jpg,jpeg',
+                'mimetypes:image/jpeg,image/png,image/jpg',
                 'max:10000'
             ],
             'cover' => [

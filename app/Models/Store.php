@@ -70,7 +70,7 @@ class Store extends Model
      */
     public function getLogoAttribute()
     {
-        return $this->attributes['logo'] ? asset(Storage::url($this->attributes['logo']) ): null;
+        return $this->attributes['logo'] ? asset($this->attributes['logo']): null;
     }
 
     /**
@@ -80,7 +80,7 @@ class Store extends Model
      */
     public function getCoverAttribute()
     {
-        return $this->attributes['cover'] ? asset(Storage::url($this->attributes['cover'])) : null;
+        return $this->attributes['cover'] ? asset($this->attributes['cover']) : null;
     }
 
     /**
