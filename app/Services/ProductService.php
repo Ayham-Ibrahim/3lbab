@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Services\FileStorage;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -39,6 +40,9 @@ class ProductService extends Service
         } catch (\Throwable $th) {
             Log::error($th);
             DB::rollBack();
+            if ($th instanceof HttpResponseException) {
+                throw $th;
+            }
             $this->throwExceptionJson();
         }
     }
@@ -105,6 +109,9 @@ class ProductService extends Service
         } catch (\Throwable $th) {
             Log::error($th);
             DB::rollBack();
+            if ($th instanceof HttpResponseException) {
+                throw $th;
+            }
             $this->throwExceptionJson();
         }
     }
