@@ -22,6 +22,15 @@ class Category extends Model
     ];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_available' => 'boolean',
+    ];
+
+    /**
      * The "booted" method of the model.
      *
      * @return void
@@ -54,6 +63,28 @@ class Category extends Model
     public function getImageAttribute()
     {
         return $this->attributes['image'] ? asset($this->attributes['image']) : null;
+    }
+
+    /**
+     * Get the is_available attribute correctly casted
+     *
+     * @param  mixed  $value
+     * @return bool
+     */
+    public function getIsAvailableAttribute($value)
+    {
+        return (bool)$value;
+    }
+
+    /**
+     * Set the is_available attribute correctly for database
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+    public function setIsAvailableAttribute($value)
+    {
+        $this->attributes['is_available'] = $value ? 1 : 0;
     }
 
     /**

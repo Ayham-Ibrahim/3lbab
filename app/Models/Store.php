@@ -42,6 +42,7 @@ class Store extends Model
     {
         return [
             'phones' => 'array',
+            'is_available' => 'boolean',
         ];
     }
 
@@ -64,13 +65,35 @@ class Store extends Model
     }
 
     /**
+     * Get the is_available attribute correctly casted
+     *
+     * @param  mixed  $value
+     * @return bool
+     */
+    public function getIsAvailableAttribute($value)
+    {
+        return (bool)$value;
+    }
+
+    /**
+     * Set the is_available attribute correctly for database
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+    public function setIsAvailableAttribute($value)
+    {
+        $this->attributes['is_available'] = $value ? 1 : 0;
+    }
+
+    /**
      * Get the full URL for the store logo
      *
      * @return string|null
      */
     public function getLogoAttribute()
     {
-        return $this->attributes['logo'] ? asset($this->attributes['logo']): null;
+        return $this->attributes['logo'] ? asset($this->attributes['logo']) : null;
     }
 
     /**
