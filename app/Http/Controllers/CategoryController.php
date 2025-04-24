@@ -38,9 +38,10 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
+        $is_available = $request->input('is_available') == 'true' ? 1 : 0;
         return $this->success(
             Category::select('id', 'name', 'image', 'is_available')
-                ->available($request->input('is_available'))
+                ->available($is_available)
                 ->get(),
             'Categories retrieved successfully'
         );

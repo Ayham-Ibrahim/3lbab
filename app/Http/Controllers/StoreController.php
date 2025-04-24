@@ -41,9 +41,11 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
+        $is_available = $request->input('is_available') == 'true' ? 1 : 0;
+
         return $this->success(
             Store::select('id', 'name', 'logo', 'is_available')
-                ->available($request->input('is_available'))
+                ->available($is_available)
                 ->get(),
             'Stores retrieved successfully'
         );

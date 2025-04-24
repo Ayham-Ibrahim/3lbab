@@ -29,9 +29,11 @@ class ColorController extends Controller
      */
     public function index(Request $request)
     {
+        $is_available = $request->input('is_available') == 'true' ? 1 : 0;
+
         return $this->success(
             Color::select('id', 'name', 'hex_code', 'is_available')
-                ->available($request->input('is_available'))
+                ->available($is_available)
                 ->get(),
             'Colors retrieved successfully'
         );
