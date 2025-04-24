@@ -25,6 +25,37 @@ class Product extends Model
     ];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_available' => 'boolean',
+    ];
+
+    /**
+     * Get the is_available attribute correctly casted
+     *
+     * @param  mixed  $value
+     * @return bool
+     */
+    public function getIsAvailableAttribute($value)
+    {
+        return (bool)$value;
+    }
+
+    /**
+     * Set the is_available attribute correctly for database
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+    public function setIsAvailableAttribute($value)
+    {
+        $this->attributes['is_available'] = $value ? 1 : 0;
+    }
+
+    /**
      * Get the full URL for the product video
      *
      * @return string|null
