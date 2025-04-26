@@ -44,7 +44,7 @@ class ProductController extends Controller
         $this->middleware(['permission:delete-products'])->only('destroy');
         $this->middleware(['permission:delete-product-images'])->only('deleteImage');
         $this->middleware(['permission:delete-product-variants'])->only('deleteVariant');
-        $this->middleware(['permission:manage-products'])->only('getProductFormData');
+        // $this->middleware(['permission:manage-products'])->only('getProductFormData');
     }
 
     /**
@@ -230,10 +230,10 @@ class ProductController extends Controller
      */
     public function getProductFormData(Request $request)
     {
-        $productId = $request->get('product_id');
+        $productId = $request->get('product');
 
         $colors = Color::available(true)->select('id', 'name','hex_code')->get();
-        $sizes = Size::available(true)->select('id', 'type','size_code')->get();
+        $sizes = Size::available(true)->select('id', 'size_code')->get();
         $stores = Store::available(true)->select('id', 'name','logo')->get();
         $categories = Category::available(true)->select('id', 'name','image')->get();
 

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Services\CategoryService;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
+use App\Models\Store;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
@@ -44,6 +46,23 @@ class CategoryController extends Controller
                 ->available($is_available)
                 ->get(),
             'Categories retrieved successfully'
+        );
+    }
+
+    /**
+     * Display a listing of the current manager's categories
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function myCategories()
+    {
+        $user_id = Auth::id();
+        $store = Store::where('manager_id', $user_id)->first();
+
+        return $this->success(
+            Category::select('id', 'name', 'image', 'is_available')
+                ->store($store->id)
+                ->get(),
         );
     }
 

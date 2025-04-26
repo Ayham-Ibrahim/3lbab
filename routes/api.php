@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ColorController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\StoreController;
@@ -78,8 +79,11 @@ Route::middleware(['auth:api'])->group(function () {
     | Category Routes
     |--------------------------------------------------------------------------
     */
-    Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
-    Route::patch('categories/{category}/toggle-available', [CategoryController::class, 'toggleAvailable']);
+    Route::prefix('categories')->group(function () {
+        Route::apiResource('/', CategoryController::class)->except(['index', 'show']);
+        Route::patch('/{category}/toggle-available', [CategoryController::class, 'toggleAvailable']);
+        Route::get('/my', [CategoryController::class, 'myCategories']);
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -108,3 +112,10 @@ Route::apiResource('sizes', SizeController::class)->only(['index', 'show']);
 Route::apiResource('stores', StoreController::class)->only(['index', 'show']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
 Route::apiResource('products', ProductController::class)->only(['index', 'show']);
+
+
+
+//LOG
+Route::delete('/reset-log', [LogController::class, 'resetLog']);
+Route::get('/logs', [LogController::class, 'getLog']);
+

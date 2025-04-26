@@ -99,6 +99,19 @@ class Category extends Model
         return $query->when($isAvailable !== null, fn($q) => $q->where('is_available', $isAvailable));
     }
 
+    /**
+     * Scope a query to filter categories by store.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $storeId Filter by store ID .
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeStore(Builder $query, $storeId): Builder
+    {
+        return $query->whereHas('stores', function ($q) use ($storeId) {
+            $q->where('stores.id', $storeId);
+        });
+    }
 
     /**
      * The stores that belong to the Category
