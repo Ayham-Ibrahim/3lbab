@@ -54,7 +54,7 @@ class ProductController extends Controller
     {
         $is_available = $request->input('is_available') == 'true' ? 1 : 0;
 
-        return $this->success(
+        return $this->paginate(
             Product::with(['store:id,name', 'images', 'category:id,name'])
                 ->available($is_available)
                 ->store(($request->input('store')))
@@ -74,7 +74,7 @@ class ProductController extends Controller
     {
         $is_available = $request->input('is_available') == 'true' ? 1 : 0;
 
-        return $this->success(
+        return $this->paginate(
             Product::with(['store:id,name', 'images', 'category:id,name'])
                 ->whereHas('store', function ($q) {
                     $q->where('manager_id', Auth::id());
@@ -94,7 +94,7 @@ class ProductController extends Controller
      */
     public function getAvailable(Request $request)
     {
-        return $this->success(
+        return $this->paginate(
             Product::with(['images'])
                 ->select('id', 'name', 'price')
                 ->available(true)
