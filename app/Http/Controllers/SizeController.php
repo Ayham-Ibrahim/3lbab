@@ -28,7 +28,9 @@ class SizeController extends Controller
      */
     public function index(Request $request)
     {
-        $is_available = $request->input('is_available') == 'true' ? 1 : 0;
+        $is_available = ($request->input('is_available') === null)
+            ? null
+            : ($request->input('is_available') == 'true' ? 1 : 0);
 
         return $this->success(
             Size::select('id', 'size_code', 'is_available')

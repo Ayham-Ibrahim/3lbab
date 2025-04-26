@@ -52,7 +52,9 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $is_available = $request->input('is_available') == 'true' ? 1 : 0;
+        $is_available = ($request->input('is_available') === null)
+            ? null
+            : ($request->input('is_available') == 'true' ? 1 : 0);
 
         return $this->paginate(
             Product::with(['store:id,name', 'images', 'category:id,name'])
@@ -72,7 +74,9 @@ class ProductController extends Controller
      */
     public function myProducts(Request $request)
     {
-        $is_available = $request->input('is_available') == 'true' ? 1 : 0;
+        $is_available = ($request->input('is_available') === null)
+            ? null
+            : ($request->input('is_available') == 'true' ? 1 : 0);
 
         return $this->paginate(
             Product::with(['store:id,name', 'images', 'category:id,name'])
@@ -127,7 +131,7 @@ class ProductController extends Controller
     {
         $data = $request->validated();
         $user_id = Auth::id();
-        $store = Store::where('manager_id',$user_id)->first();
+        $store = Store::where('manager_id', $user_id)->first();
         $data['store_id'] = $store->id;
 
         return $this->success(
@@ -232,10 +236,10 @@ class ProductController extends Controller
     {
         $productId = $request->get('product');
 
-        $colors = Color::available(true)->select('id', 'name','hex_code')->get();
+        $colors = Color::available(true)->select('id', 'name', 'hex_code')->get();
         $sizes = Size::available(true)->select('id', 'size_code')->get();
-        $stores = Store::available(true)->select('id', 'name','logo')->get();
-        $categories = Category::available(true)->select('id', 'name','image')->get();
+        $stores = Store::available(true)->select('id', 'name', 'logo')->get();
+        $categories = Category::available(true)->select('id', 'name', 'image')->get();
 
         if ($productId) {
             $product = Product::with(['images', 'variants.color', 'variants.size', 'store', 'category'])

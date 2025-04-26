@@ -73,17 +73,16 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('store', [StoreController::class, 'myStore']);
         Route::put('store', [StoreController::class, 'updateMyStore']);
     });
+    Route::get('store/form-data', [StoreController::class, 'StoreFormData']);
 
     /*
     |--------------------------------------------------------------------------
     | Category Routes
     |--------------------------------------------------------------------------
     */
-    Route::prefix('categories')->group(function () {
-        Route::apiResource('/', CategoryController::class)->except(['index', 'show']);
-        Route::patch('/{category}/toggle-available', [CategoryController::class, 'toggleAvailable']);
-        Route::get('/my', [CategoryController::class, 'myCategories']);
-    });
+    Route::apiResource('/categories', CategoryController::class)->except(['index', 'show']);
+    Route::patch('categories/{category}/toggle-available', [CategoryController::class, 'toggleAvailable']);
+    Route::get('categories/my', [CategoryController::class, 'myCategories']);
 
     /*
     |--------------------------------------------------------------------------
@@ -96,10 +95,10 @@ Route::middleware(['auth:api'])->group(function () {
             Route::get('/', [ProductController::class, 'myProducts']);
             Route::post('/', [ProductController::class, 'storeMyProduct']);
         });
-        Route::get('form-data', [ProductController::class, 'getProductFormData']);
         Route::delete('images/{image}', [ProductController::class, 'deleteImage']);
         Route::delete('variants/{variant}', [ProductController::class, 'deleteVariant']);
     });
+    Route::get('product/form-data', [ProductController::class, 'getProductFormData']);
 });
 
 /*
@@ -118,4 +117,3 @@ Route::apiResource('products', ProductController::class)->only(['index', 'show']
 //LOG
 Route::delete('/reset-log', [LogController::class, 'resetLog']);
 Route::get('/logs', [LogController::class, 'getLog']);
-
