@@ -59,7 +59,7 @@ class ProductController extends Controller
                 ->available($is_available)
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
-                ->get(),
+                ->paginate(),
             'Products retrieved successfully'
         );
     }
@@ -82,7 +82,7 @@ class ProductController extends Controller
                 ->available($is_available)
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
-                ->get(),
+                ->paginate(),
             'Products retrieved successfully'
         );
     }
@@ -100,7 +100,7 @@ class ProductController extends Controller
                 ->available(true)
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
-                ->get(),
+                ->paginate(),
             'Available Sizes retrieved successfully'
         );
     }
