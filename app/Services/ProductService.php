@@ -27,7 +27,7 @@ class ProductService extends Service
                 'name'         => $data['name'],
                 'description'  => $data['description'],
                 'price'        => $data['price'],
-                'video'        => FileStorage::storeFile($data['video'], 'Product', 'vid'),
+                'video'        => isset($data['video']) ? FileStorage::storeFile($data['video'], 'Product', 'vid') : null,
                 'is_available' => $data['is_available'],
             ]);
 
@@ -59,15 +59,15 @@ class ProductService extends Service
         try {
             DB::beginTransaction();
 
-            $product->update(array_filter([
-                'store_id'     => $data['store_id'] ?? null,
-                'category_id'  => $data['category_id'] ?? null,
-                'name'         => $data['name'] ?? null,
-                'description'  => $data['description'] ?? null,
-                'price'        => $data['price'] ?? null,
-                'video'        => FileStorage::fileExists($data['video'] ?? null, $product->image, 'Product', 'vid'),
-                'is_available' => $data['is_available'] ?? null,
-            ]));
+            $product->update([
+                'store_id'     => $data['store_id'] ?? $product->store_id,
+                'category_id'  => $data['category_id'] ?? $product->category_id,
+                'name'         => $data['name'] ?? $product->name,
+                'description'  => $data['description'] ?? $product->description,
+                'price'        => $data['price'] ?? $product->price,
+                'video'        => FileStorage::fileExists($data['video'] ?? null, $product->video, 'Product', 'vid'),
+                'is_available' => $data['is_available'] ?? $product->is_available,
+            ]);
 
             if (isset($data['images'])) {
                 $product->images()->delete();

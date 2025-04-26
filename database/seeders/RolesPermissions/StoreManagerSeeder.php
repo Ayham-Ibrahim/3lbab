@@ -31,6 +31,7 @@ class StoreManagerSeeder extends Seeder
             'update-products',
             'show-products',
             'delete-products',
+            'manage-products',
             'delete-product-images',
             'delete-product-variants'
         ];

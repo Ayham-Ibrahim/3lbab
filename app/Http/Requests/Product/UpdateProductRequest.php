@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Product;
 
 use App\Http\Requests\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProductRequest extends BaseFormRequest
 {
@@ -25,7 +26,11 @@ class UpdateProductRequest extends BaseFormRequest
             'category_id'     => 'nullable|integer|exists:categories,id',
             'store_id'        => 'nullable|integer|exists:stores,id',
             'price'           => 'nullable|numeric',
-            'name'            => 'nullable|string',
+            'name'            => [
+                'nullable',
+                'string',
+                Rule::unique('products')->ignore($this->product)
+            ],
             'description'     => 'nullable|string',
             'video'           => 'nullable|file|mimetypes:video/mp4,video/quicktime|max:10240',
             'is_available'    => 'nullable|boolean',
