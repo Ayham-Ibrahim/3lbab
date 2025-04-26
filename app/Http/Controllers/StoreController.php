@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Store\StoreStoreRequest;
 use App\Http\Requests\Store\UpdateStoreRequest;
+use App\Models\Category;
 use App\Models\Store;
+use App\Models\User;
 use App\Services\StoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -170,5 +172,38 @@ class StoreController extends Controller
     {
         $store->delete();
         return $this->success(null, 'Store deleted successfully', 204);
+    }
+
+    /**
+     * get store's form data for admin dashboard
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function StoreFormData(Request $request)
+    {
+        $storeId = $request->get('store');
+
+        $admins = User::role(['admin', 'storeManager'])
+            ->select('id', 'name')
+            ->get();
+        $categories = Category::available(true)->select('id', 'name')->get();
+
+        if ($storeId) {
+            $store = Store::with(['categories:id,name'])
+                ->findOrFail($storeId);
+
+            return response()->json([
+                'mode' => 'edit',
+                'store' => $store,
+                'admins' => $admins,
+                'categories' => $categories,
+            ]);
+        }
+
+        return response()->json([
+            'mode' => 'create',
+            'admins' => $admins,
+            'categories' => $categories,
+        ]);
     }
 }
