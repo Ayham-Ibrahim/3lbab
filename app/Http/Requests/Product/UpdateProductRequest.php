@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests\Product;
 
-use App\Http\Requests\BaseFormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
+use App\Http\Requests\BaseFormRequest;
 
 class UpdateProductRequest extends BaseFormRequest
 {
@@ -54,6 +55,9 @@ class UpdateProductRequest extends BaseFormRequest
 
     public function withValidator($validator)
     {
+
+        Log::info('Request Data:', $this->all());
+
         $validator->after(function ($validator) {
             $product = $this->route('product');
             $variants = $this->input('variants', []);
