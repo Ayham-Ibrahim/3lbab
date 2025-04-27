@@ -89,6 +89,16 @@ class StoreProductRequest extends BaseFormRequest
         $validator->after(function ($validator) {
             $variants = $this->input('variants', []);
 
+            if (is_string($variants)) {
+                $variants = json_decode($variants, true);
+            }
+    
+            // إذا كانت variants غير صالحة (بعد فك التشفير)، اجعلها مصفوفة فارغة
+            if (!is_array($variants)) {
+                $variants = [];
+            }
+
+            
             if (empty($variants)) {
                 return;
             }
