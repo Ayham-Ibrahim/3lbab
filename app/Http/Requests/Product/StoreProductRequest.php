@@ -59,13 +59,20 @@ class StoreProductRequest extends BaseFormRequest
             ]);
         }
 
-        
-        // If variants is a string (JSON string), keep it as it is
+        // Check if variants is a string (JSON string), and decode it into an array
         if ($this->has('variants') && is_string($this->variants)) {
-            // You can choose to leave the variants as a string or convert it to array if necessary
-            $this->merge([
-                'variants' => $this->variants, // Keep as string (JSON)
-            ]);
+            // Decode the JSON string to an array
+            $decodedVariants = json_decode($this->variants, true);
+
+            // If decoding is successful, merge the decoded data into the request
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $this->merge([
+                    'variants' => $decodedVariants,
+                ]);
+            } else {
+                // Optionally log the error if decoding fails
+                Log::error('Invalid JSON string for variants:', ['variants' => $this->variants]);
+            }
         }
 
     }
