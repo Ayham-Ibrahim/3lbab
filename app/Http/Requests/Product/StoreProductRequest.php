@@ -59,23 +59,13 @@ class StoreProductRequest extends BaseFormRequest
             ]);
         }
 
-       // Safe handle variants
-        if ($this->has('variants')) {
-            $variants = $this->input('variants');
-
-            if (is_string($variants)) {
-                $decoded = json_decode($variants, true);
-
-                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                    $this->merge([
-                        'variants' => $decoded,
-                    ]);
-                } else {
-                    $this->merge([
-                        'variants' => [],
-                    ]);
-                }
-            }
+        
+        // If variants is a string (JSON string), keep it as it is
+        if ($this->has('variants') && is_string($this->variants)) {
+            // You can choose to leave the variants as a string or convert it to array if necessary
+            $this->merge([
+                'variants' => $this->variants, // Keep as string (JSON)
+            ]);
         }
 
     }
