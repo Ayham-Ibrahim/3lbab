@@ -31,7 +31,7 @@ class StoreProductRequest extends BaseFormRequest
             'is_available'    => 'required|boolean',
             'images'          => 'required|array',
             'images.*.file'   => 'required|file|image|mimes:png,jpg,jpeg|max:10000|mimetypes:image/jpeg,image/png,image/jpg',
-            'variants'        => 'nullable|array',
+            'variants'        => 'required|array',
             'variants.*.color_id' => [
                 'nullable',
                 'integer',
