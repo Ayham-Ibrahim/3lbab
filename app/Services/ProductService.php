@@ -99,13 +99,24 @@ class ProductService extends Service
      */
     protected function storeProductImages(Product $product, array $images)
     {
+        // تأكد من أنك تتعامل مع الصور ككائنات UploadedFile
         $productImages = collect($images)->map(function ($photo) {
-            return [
-                'image' => FileStorage::storeFile($photo['file'], 'Product', 'img'),
-            ];
-        })->toArray();
+            // إذا كانت الصورة هي كائن من نوع UploadedFile
+            if ($photo instanceof \Illuminate\Http\UploadedFile) {
+                return [
+                    'image' => FileStorage::storeFile($photo, 'Product', 'img'),
+                ];
+            }
 
-        $product->images()->createMany($productImages);
+            // إذا كانت الصورة ليست كائن UploadedFile، يمكن معالجة الخطأ هنا
+            Log::error('Invalid image file type:', ['image' => $photo]);
+            return null;
+        })->filter()->toArray(); // قم بتصفية القيم null من المصفوفة
+
+        // تخزين الصور المرتبطة بالمنتج
+        if (!empty($productImages)) {
+            $product->images()->createMany($productImages);
+        }
     }
 
     /**
