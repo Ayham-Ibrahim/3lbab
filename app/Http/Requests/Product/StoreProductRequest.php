@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Product;
 
+use Illuminate\Support\Facades\Log;
 use App\Http\Requests\BaseFormRequest;
 
 class StoreProductRequest extends BaseFormRequest
@@ -49,6 +50,8 @@ class StoreProductRequest extends BaseFormRequest
 
     protected function prepareForValidation()
     {
+        Log::info('Request Data:', $this->all());
+
         // Force convert is_available to boolean
         if ($this->has('is_available')) {
             $this->merge([
