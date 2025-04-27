@@ -87,8 +87,10 @@ class StoreProductRequest extends BaseFormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            // تأكد من أن 'variants' هي مصفوفة قبل استخدام foreach
             $variants = $this->input('variants', []);
-
+            
+            // إذا كانت variants عبارة عن سلسلة نصية JSON، فقم بفك تشفيرها
             if (is_string($variants)) {
                 $variants = json_decode($variants, true);
             }
@@ -97,20 +99,25 @@ class StoreProductRequest extends BaseFormRequest
             if (!is_array($variants)) {
                 $variants = [];
             }
-
-            
+    
             if (empty($variants)) {
                 return;
             }
-
+    
+            // تحقق من أن المصفوفة تحتوي على عناصر قبل الوصول إليها
+            if (!isset($variants[0])) {
+                return;
+            }
+    
+            // فحص المتغيرات لتتبع نفس النمط
             $firstVariant = $variants[0];
             $hasColor     = !is_null($firstVariant['color_id'] ?? null);
             $hasSize      = !is_null($firstVariant['size_id'] ?? null);
-
+    
             foreach ($variants as $index => $variant) {
                 $currentHasColor = !is_null($variant['color_id'] ?? null);
                 $currentHasSize = !is_null($variant['size_id'] ?? null);
-
+    
                 if ($currentHasColor !== $hasColor || $currentHasSize !== $hasSize) {
                     $validator->errors()->add(
                         "variants.$index",
@@ -118,7 +125,8 @@ class StoreProductRequest extends BaseFormRequest
                     );
                 }
             }
-
+    
+            // التحقق من أن المنتج لا يحتوي على لون/مقاس رئيسي إذا كان لديه variants
             if (!empty($variants) && ($this->input('color_id') || $this->input('size_id'))) {
                 $validator->errors()->add(
                     'variants',
@@ -127,4 +135,5 @@ class StoreProductRequest extends BaseFormRequest
             }
         });
     }
+    
 }
