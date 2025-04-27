@@ -72,7 +72,7 @@ class StoreProductRequest extends BaseFormRequest
                     ]);
                 } else {
                     $this->merge([
-                        'variants' => [$variants],
+                        'variants' => [],
                     ]);
                 }
             }
