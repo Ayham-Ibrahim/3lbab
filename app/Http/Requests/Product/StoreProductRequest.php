@@ -45,6 +45,25 @@ class StoreProductRequest extends BaseFormRequest
             'variants.*.quantity' => 'required|integer|min:0',
         ];
     }
+    
+
+    protected function prepareForValidation()
+    {
+        // Force convert is_available to boolean
+        if ($this->has('is_available')) {
+            $this->merge([
+                'is_available' => filter_var($this->input('is_available'), FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+
+        // Convert variants if it is stringified
+        if ($this->has('variants') && is_string($this->variants)) {
+            $this->merge([
+                'variants' => json_decode($this->variants, true),
+            ]);
+        }
+
+    }
 
     public function withValidator($validator)
     {
