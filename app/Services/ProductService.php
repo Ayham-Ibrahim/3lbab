@@ -20,34 +20,7 @@ class ProductService extends Service
     public function storeProduct($data)
     {
         try {
-            // إذا كانت variants هي JSON مشوّه، قم بفك تشفيرها هنا
-            if (is_string($data['variants'])) {
-                $decodedVariants = json_decode($data['variants'], true);
-    
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    // في حال كان هناك خطأ في فك التشفير، يمكنك التعامل مع الخطأ هنا
-                    Log::error('Invalid JSON for variants', ['error' => json_last_error_msg()]);
-                    throw new \Exception('Invalid variants JSON.');
-                }
-    
-                $data['variants'] = $decodedVariants;
-            }
-    
-            // التحقق من وجود variant بشكل صحيح
-            $variants = $data['variants'] ?? [];
-            $hasColor = isset($variants[0]['color_id']);
-            $hasSize = isset($variants[0]['size_id']);
-    
-            foreach ($variants as $index => $variant) {
-                // التحقق من أن جميع المتغيرات تتبع نفس النمط (color_id و size_id)
-                if ((isset($variant['color_id']) !== $hasColor) || (isset($variant['size_id']) !== $hasSize)) {
-                    throw new \Exception('جميع المتغيرات يجب أن تتبع نفس النمط (لون و/أو مقاس)');
-                }
-            }
-    
             DB::beginTransaction();
-    
-            // إنشاء المنتج
             $product = Product::create([
                 'store_id'     => $data['store_id'],
                 'category_id'  => $data['category_id'],
@@ -57,15 +30,12 @@ class ProductService extends Service
                 'video'        => isset($data['video']) ? FileStorage::storeFile($data['video'], 'Product', 'vid') : null,
                 'is_available' => $data['is_available'],
             ]);
-    
-            // تخزين الصور
+
             $this->storeProductImages($product, $data['images']);
-    
-            // تخزين المتغيرات
+
             $this->storeProductVariants($product, $data['variants']);
-    
             DB::commit();
-    
+
             return $product->load('images');
         } catch (\Throwable $th) {
             Log::error($th);
@@ -76,7 +46,6 @@ class ProductService extends Service
             $this->throwExceptionJson();
         }
     }
-    
 
     /**
      * Updates an existing product along with its images.
