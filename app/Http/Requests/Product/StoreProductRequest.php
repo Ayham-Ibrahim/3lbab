@@ -60,27 +60,25 @@ class StoreProductRequest extends BaseFormRequest
         }
 
         
-        // // Check if variants is a string (JSON string), and decode it into an array
-        // if ($this->has('variants') && is_string($this->variants)) {
-        //     // Remove the additional quotes around the JSON string if any
-        //     $variantsString = stripslashes($this->variants);
+         // Check if variants is a JSON string and decode it into an array
+    if ($this->has('variants') && is_string($this->input('variants'))) {
+        // Remove any extra slashes and decode the JSON string into an array
+        $variantsString = stripslashes($this->input('variants'));
+        $decodedVariants = json_decode($variantsString, true);
 
-        //     // Decode the JSON string to an array
-        //     $decodedVariants = json_decode($variantsString, true);
-
-        //     // If decoding is successful, merge the decoded data into the request
-        //     if (json_last_error() === JSON_ERROR_NONE) {
-        //         $this->merge([
-        //             'variants' => $decodedVariants,
-        //         ]);
-        //     } else {
-        //         // Optionally log the error if decoding fails
-        //         Log::error('Invalid JSON string for variants:', [
-        //             'variants' => $this->variants,
-        //             'json_last_error' => json_last_error_msg(),
-        //         ]);
-        //     }
-        // }
+        // If decoding is successful, merge the decoded data into the request
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $this->merge([
+                'variants' => $decodedVariants,
+            ]);
+        } else {
+            // Optionally log the error if decoding fails
+            Log::error('Invalid JSON string for variants:', [
+                'variants' => $this->input('variants'),
+                'json_last_error' => json_last_error_msg(),
+            ]);
+        }
+    }
 
     }
 
