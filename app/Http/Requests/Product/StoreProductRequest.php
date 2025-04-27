@@ -47,75 +47,55 @@ class StoreProductRequest extends BaseFormRequest
         ];
     }
     
-
     protected function prepareForValidation()
     {
         Log::info('Request Data:', $this->all());
-
+    
         // Force convert is_available to boolean
         if ($this->has('is_available')) {
             $this->merge([
                 'is_available' => filter_var($this->input('is_available'), FILTER_VALIDATE_BOOLEAN),
             ]);
         }
-
-        
-         // Check if variants is a JSON string and decode it into an array
-    if ($this->has('variants') && is_string($this->input('variants'))) {
-        // Remove any extra slashes and decode the JSON string into an array
-        $variantsString = stripslashes($this->input('variants'));
-        $decodedVariants = json_decode($variantsString, true);
-
-        // If decoding is successful, merge the decoded data into the request
-        if (json_last_error() === JSON_ERROR_NONE) {
-            $this->merge([
-                'variants' => $decodedVariants,
-            ]);
-        } else {
-            // Optionally log the error if decoding fails
-            Log::error('Invalid JSON string for variants:', [
-                'variants' => $this->input('variants'),
-                'json_last_error' => json_last_error_msg(),
-            ]);
+    
+        // Check if variants is a JSON string and decode it into an array
+        if ($this->has('variants') && is_string($this->input('variants'))) {
+            // Remove any extra slashes and decode the JSON string into an array
+            $variantsString = stripslashes($this->input('variants'));
+            $decodedVariants = json_decode($variantsString, true);
+    
+            // If decoding is successful, merge the decoded data into the request
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $this->merge([
+                    'variants' => $decodedVariants,
+                ]);
+            } else {
+                // Optionally log the error if decoding fails
+                Log::error('Invalid JSON string for variants:', [
+                    'variants' => $this->input('variants'),
+                    'json_last_error' => json_last_error_msg(),
+                ]);
+            }
         }
-    }
-
     }
 
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            // تأكد من أن 'variants' هي مصفوفة قبل استخدام foreach
             $variants = $this->input('variants', []);
-            
-            // إذا كانت variants عبارة عن سلسلة نصية JSON، فقم بفك تشفيرها
-            if (is_string($variants)) {
-                $variants = json_decode($variants, true);
-            }
-    
-            // إذا كانت variants غير صالحة (بعد فك التشفير)، اجعلها مصفوفة فارغة
-            if (!is_array($variants)) {
-                $variants = [];
-            }
-    
+
             if (empty($variants)) {
                 return;
             }
-    
-            // تحقق من أن المصفوفة تحتوي على عناصر قبل الوصول إليها
-            if (!isset($variants[0])) {
-                return;
-            }
-    
-            // فحص المتغيرات لتتبع نفس النمط
+
             $firstVariant = $variants[0];
             $hasColor     = !is_null($firstVariant['color_id'] ?? null);
             $hasSize      = !is_null($firstVariant['size_id'] ?? null);
-    
+
             foreach ($variants as $index => $variant) {
                 $currentHasColor = !is_null($variant['color_id'] ?? null);
                 $currentHasSize = !is_null($variant['size_id'] ?? null);
-    
+
                 if ($currentHasColor !== $hasColor || $currentHasSize !== $hasSize) {
                     $validator->errors()->add(
                         "variants.$index",
@@ -123,8 +103,7 @@ class StoreProductRequest extends BaseFormRequest
                     );
                 }
             }
-    
-            // التحقق من أن المنتج لا يحتوي على لون/مقاس رئيسي إذا كان لديه variants
+
             if (!empty($variants) && ($this->input('color_id') || $this->input('size_id'))) {
                 $validator->errors()->add(
                     'variants',
@@ -133,5 +112,4 @@ class StoreProductRequest extends BaseFormRequest
             }
         });
     }
-    
 }
