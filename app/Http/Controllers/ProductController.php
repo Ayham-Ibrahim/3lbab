@@ -17,6 +17,7 @@ use App\Http\Resources\ProductResource;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Requests\Product\StoreMyProductRequest;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -186,9 +187,10 @@ class ProductController extends Controller
      */
     public function update(StoreProductRequest $request, Product $product)
     {
-
+        $validatedData = $request->validated();
+        Log::debug('Data received for product update (ID: ' . $product->id . ')', $validatedData);
         return $this->success(
-            $this->productService->updateProduct($request->validated(), $product),
+            $this->productService->updateProduct($validatedData, $product),
             'Product updated successfully'
         );
     }
