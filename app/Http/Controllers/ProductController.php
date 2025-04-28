@@ -185,12 +185,10 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreProductRequest $request, Product $product)
+    public function update(UpdateProductRequest $request, Product $product)
     {
-        $validatedData = $request->validated();
-        Log::debug('Data received for product update (ID: ' . $product->id . ')', $validatedData);
         return $this->success(
-            $this->productService->updateProduct($validatedData, $product),
+            $this->productService->updateProduct($request->validated(), $product),
             'Product updated successfully'
         );
     }
