@@ -31,6 +31,8 @@ class Product extends Model
      */
     protected $casts = [
         'is_available' => 'boolean',
+        'category_id' => 'integer',
+        'store_id' => 'integer',
     ];
 
     /**
