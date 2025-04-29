@@ -176,36 +176,45 @@ class StoreController extends Controller
         return $this->success(null, 'Store deleted successfully', 204);
     }
 
-    /**
-     * get store's form data for admin dashboard
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function StoreFormData(Request $request)
-    {
-        $storeId = $request->get('store');
+/**
+ * Get store's form data for admin dashboard
+ * @param \Illuminate\Http\Request $request
+ * @return mixed|\Illuminate\Http\JsonResponse
+ */
+public function StoreFormData(Request $request)
+{
+    $storeId = $request->get('store');
 
-        $admins = User::role(['admin', 'storeManager'])
-            ->select('id', 'name')
-            ->get();
-        $categories = Category::available(true)->select('id', 'name')->get();
+    // Get admins who don't have stores
+    $admins = User::role(['admin', 'storeManager'])
+        ->whereDoesntHave('stores')
+        ->select('id', 'name')
+        ->get()
+        ->map(function ($admin) {
+            if ($admin->id === Auth::id()) {
+                $admin->name = 'أنا (' . $admin->name . ')';
+            }
+            return $admin;
+        });
 
-        if ($storeId) {
-            $store = Store::with(['categories:id,name'])
-                ->findOrFail($storeId);
+    $categories = Category::available(true)->select('id', 'name')->get();
 
-            return response()->json([
-                'mode' => 'edit',
-                'store' => $store,
-                'admins' => $admins,
-                'categories' => $categories,
-            ]);
-        }
+    if ($storeId) {
+        $store = Store::with(['categories:id,name'])
+            ->findOrFail($storeId);
 
         return response()->json([
-            'mode' => 'create',
+            'mode' => 'edit',
+            'store' => $store,
             'admins' => $admins,
             'categories' => $categories,
         ]);
     }
+
+    return response()->json([
+        'mode' => 'create',
+        'admins' => $admins,
+        'categories' => $categories,
+    ]);
+}
 }
