@@ -28,9 +28,11 @@ class StoreStoreRequest extends BaseFormRequest
                 'nullable',
                 'integer',
                 'exists:users,id',
-                Rule::unique('stores', 'manager_id')->ignore($this->store)->where(function ($query) {
-                    return $query->where('manager_id', $this->manager_id);
-                })
+                function ($attribute, $value, $fail) {
+                    if (Store::where('manager_id', $value)->exists()) {
+                        $fail('هذا المدير لديه متجر بالفعل ولا يمكنه إدارة أكثر من متجر واحد.');
+                    }
+                }
             ],
             'name' => [
                 'required',
