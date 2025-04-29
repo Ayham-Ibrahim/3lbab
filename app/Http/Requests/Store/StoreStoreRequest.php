@@ -60,9 +60,9 @@ class StoreStoreRequest extends BaseFormRequest
             ],
             'phones' => [
                 'required',
+                'unique:stores,phones',
                 'string',
                 'regex:/^(\+9639[0-9]{8})(,\+9639[0-9]{8}){0,2}$/',
-                'unique:stores,phones',
             ],
             'email' => [
                 'required',
@@ -112,7 +112,7 @@ class StoreStoreRequest extends BaseFormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'phones' => str_replace(' ', '', $this->phones)
+            'phones' => preg_replace('/[^+0-9,]/', '', $this->phones),
         ]);
     }
 
