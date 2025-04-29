@@ -154,31 +154,15 @@ class ProductController extends Controller
 
     /**
      * Display the specified product with full details including variants
-     *
-     * @param int $id The product ID
-     * @return ProductResource
+     * @param mixed $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function showWithDetails($id)
     {
-        $product = Product::with([
-            'category:id,name',
-            'store:id,name',
-            'images:id,product_id,image',
-            'variants' => function ($query) {
-                $query->with([
-                    'color' => function ($q) {
-                        $q->available(true)->select('id', 'name', 'hex_code');
-                    },
-                    'size' => function ($q) {
-                        $q->available(true)->select('id', 'size_code');
-                    }
-                ]);
-            }
-        ])
-            ->available(true)
-            ->findOrFail($id);
+        $product = Product::with(['images', 'variants.color', 'variants.size', 'store', 'category'])
+                ->findOrFail($id);
 
-        return new ProductResource($product);
+        return $this->success($product,'Product retrieved successfully');
     }
 
     /**
