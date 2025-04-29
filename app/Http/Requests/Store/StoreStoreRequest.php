@@ -112,7 +112,7 @@ class StoreStoreRequest extends BaseFormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'phones' => preg_replace('/[^+0-9,]/', '', $this->phones),
+            'phones' => str_replace(['"', "'", ' '], '', $this->phones),
         ]);
     }
 
