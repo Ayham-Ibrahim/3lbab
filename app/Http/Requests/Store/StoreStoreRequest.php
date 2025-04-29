@@ -4,6 +4,7 @@ namespace App\Http\Requests\Store;
 
 use App\Http\Requests\BaseFormRequest;
 use App\Models\Store;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class StoreStoreRequest extends BaseFormRequest
@@ -127,6 +128,12 @@ class StoreStoreRequest extends BaseFormRequest
         $this->merge([
             'phones' => str_replace(['"', "'", ' '], '', $this->phones),
         ]);
+
+        if (!$this->has('manager_id') && Auth::check()) {
+            $this->merge([
+                'manager_id' => Auth::id()
+            ]);
+        }
     }
 
     /**
