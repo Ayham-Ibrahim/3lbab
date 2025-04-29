@@ -56,11 +56,14 @@ class ProductController extends Controller
             ? null
             : ($request->input('is_available') == 'true' ? 1 : 0);
 
+        $search = $request->input('search');
+
         return $this->paginate(
             Product::with(['store:id,name', 'images', 'category:id,name'])
                 ->available($is_available)
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
+                ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
                 ->paginate(),
             'Products retrieved successfully'
         );
@@ -78,6 +81,8 @@ class ProductController extends Controller
             ? null
             : ($request->input('is_available') == 'true' ? 1 : 0);
 
+        $search = $request->input('search');
+
         return $this->paginate(
             Product::with(['store:id,name', 'images', 'category:id,name'])
                 ->whereHas('store', function ($q) {
@@ -86,6 +91,7 @@ class ProductController extends Controller
                 ->available($is_available)
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
+                ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
                 ->paginate(),
             'Products retrieved successfully'
         );
@@ -98,12 +104,15 @@ class ProductController extends Controller
      */
     public function getAvailable(Request $request)
     {
+        $search = $request->input('search');
+
         return $this->paginate(
             Product::with(['images'])
                 ->select('id', 'name', 'price')
                 ->available(true)
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
+                ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
                 ->paginate(),
             'Available Sizes retrieved successfully'
         );
