@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Store;
 
 use App\Http\Requests\BaseFormRequest;
+use App\Models\Store;
 
 class StoreStoreRequest extends BaseFormRequest
 {
@@ -60,9 +61,16 @@ class StoreStoreRequest extends BaseFormRequest
             ],
             'phones' => [
                 'required',
-                'unique:stores,phones',
                 'string',
                 'regex:/^(\+9639[0-9]{8})(,\+9639[0-9]{8}){0,2}$/',
+                function ($attribute, $value, $fail) {
+                    $phones = explode(',', $value);
+                    foreach ($phones as $phone) {
+                        if (Store::whereJsonContains('phones', $phone)->exists()) {
+                            $fail("رقم الهاتف {$phone} مستخدم من قبل متجر آخر.");
+                        }
+                    }
+                }
             ],
             'email' => [
                 'required',
