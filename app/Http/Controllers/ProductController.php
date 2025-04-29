@@ -160,7 +160,7 @@ class ProductController extends Controller
      */
     public function showWithDetails($id)
     {
-        $product = Product::with(['images', 'variants.color', 'variants.size', 'store', 'category'])
+        $product = Product::with(['images', 'variants', 'variants.size', 'store', 'category'])
                 ->findOrFail($id);
 
         return $this->success($product,'Product retrieved successfully');
