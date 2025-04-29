@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Store;
 
 use App\Http\Requests\BaseFormRequest;
+use App\Models\Store;
 use Illuminate\Validation\Rule;
 
 class UpdateStoreRequest extends BaseFormRequest
@@ -56,7 +57,24 @@ class UpdateStoreRequest extends BaseFormRequest
             'phones' => [
                 'nullable',
                 'string',
-                'regex:/^(\+9639[0-9]{8})(,\+9639[0-9]{8}){0,2}$/'
+                'regex:/^(\+9639[0-9]{8})(,\+9639[0-9]{8}){0,2}$/',
+                function ($attribute, $value, $fail) {
+                    $phones = explode(',', $value);
+                    $currentStorePhones = $this->store->phones ?? [];
+
+                    foreach ($phones as $phone) {
+                        if (in_array($phone, $currentStorePhones)) {
+                            continue;
+                        }
+
+                        if (Store::where('id', '!=', $this->store->id)
+                            ->whereJsonContains('phones', $phone)
+                            ->exists()
+                        ) {
+                            $fail("رقم الهاتف {$phone} مستخدم من قبل متجر آخر.");
+                        }
+                    }
+                }
             ],
             'email' => [
                 'nullable',
