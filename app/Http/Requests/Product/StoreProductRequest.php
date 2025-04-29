@@ -26,7 +26,7 @@ class StoreProductRequest extends BaseFormRequest
             'category_id'     => 'required|integer|exists:categories,id',
             'store_id'        => 'required|integer|exists:stores,id',
             'price'           => 'required|numeric',
-            'name'            => 'required|string|unique:products,name',
+            'name'            => 'required|string',
             'description'     => 'required|string',
             'video'           => 'nullable|file|mimetypes:video/mp4,video/quicktime|max:10240',
             'is_available'    => 'required|boolean',
