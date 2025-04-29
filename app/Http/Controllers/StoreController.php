@@ -187,7 +187,7 @@ public function StoreFormData(Request $request)
 
     // Get admins who don't have stores
     $admins = User::role(['admin', 'storeManager'])
-        ->whereDoesntHave('stores')
+        ->whereDoesntHave('store')
         ->select('id', 'name')
         ->get()
         ->map(function ($admin) {
