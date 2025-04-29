@@ -43,6 +43,7 @@ class Store extends Model
         return [
             'phones' => 'array',
             'is_available' => 'boolean',
+            'manager_id' => 'integer'
         ];
     }
 
