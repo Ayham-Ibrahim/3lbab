@@ -4,6 +4,7 @@ namespace App\Http\Requests\Store;
 
 use App\Http\Requests\BaseFormRequest;
 use App\Models\Store;
+use Illuminate\Validation\Rule;
 
 class StoreStoreRequest extends BaseFormRequest
 {
@@ -27,7 +28,9 @@ class StoreStoreRequest extends BaseFormRequest
                 'nullable',
                 'integer',
                 'exists:users,id',
-                'unique:stores,manager_id'
+                Rule::unique('stores', 'manager_id')->ignore($this->store)->where(function ($query) {
+                    return $query->where('manager_id', $this->manager_id);
+                })
             ],
             'name' => [
                 'required',
