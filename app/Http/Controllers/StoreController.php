@@ -124,7 +124,7 @@ class StoreController extends Controller
     {
         $myStore = Auth::user()->store;
         return $this->success(
-            $myStore->load(['categories:id,name']) ?? null,
+            $myStore ? $myStore->load(['categories:id,name']) : null,
             'Store retrieved successfully'
         );
     }
