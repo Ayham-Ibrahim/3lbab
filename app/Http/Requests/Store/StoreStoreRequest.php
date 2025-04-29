@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Store;
 
+use App\Models\Store;
 use App\Http\Requests\BaseFormRequest;
 
 class StoreStoreRequest extends BaseFormRequest
@@ -26,7 +27,11 @@ class StoreStoreRequest extends BaseFormRequest
                 'nullable',
                 'integer',
                 'exists:users,id',
-                'unique:stores,manager_id'
+                function ($attribute, $value, $fail) {
+                    if ($value && Store::where('manager_id', $value)->exists()) {
+                        $fail('تم ربط هذا المدير مسبقاً بمتجر آخر.');
+                    }
+                },
             ],
             'name' => [
                 'required',
