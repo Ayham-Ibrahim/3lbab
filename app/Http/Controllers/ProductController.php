@@ -108,7 +108,7 @@ class ProductController extends Controller
     {
         $products = Product::with(['images'])
             ->select('id', 'name', 'price')
-            ->available()
+            ->available(true)
             ->availableInStore($request->input('store'))
             ->availableInCategory($request->input('category'))
             ->searchByName($request->input('search'))
