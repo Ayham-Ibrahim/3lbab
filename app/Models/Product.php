@@ -80,37 +80,45 @@ class Product extends Model
     }
 
     /**
-     * Scope a query to filter products by category.
+     * Scope to filter products available in specific store(s) (with availability check)
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  int|array|null  $categoryId (Optional) Filter by category ID or array of IDs. If null, returns all.
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int|array|null $storeId Store ID or array of IDs. Null to just check store availability.
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeCategory(Builder $query, $categoryId = null): Builder
+    public function scopeAvailableInStore(Builder $query, $storeId = null): Builder
     {
-        return $query->when($categoryId !== null, function ($q) use ($categoryId) {
-            if (is_array($categoryId)) {
-                return $q->whereIn('category_id', $categoryId);
-            }
-            return $q->where('category_id', $categoryId);
+        return $query->whereHas('store', function ($q) use ($storeId) {
+            $q->available()
+                ->when($storeId, fn($q) => $q->where('id', $storeId));
         });
     }
 
     /**
-     * Scope a query to filter products by store.
+     * Scope to filter products available in specific category(ies) (with availability check)
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  int|array|null  $storeId (Optional) Filter by store ID or array of IDs. If null, returns all.
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int|array|null $categoryId Category ID or array of IDs. Null to just check category availability.
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeStore(Builder $query, $storeId = null): Builder
+    public function scopeAvailableInCategory(Builder $query, $categoryId = null): Builder
     {
-        return $query->when($storeId !== null, function ($q) use ($storeId) {
-            if (is_array($storeId)) {
-                return $q->whereIn('store_id', $storeId);
-            }
-            return $q->where('store_id', $storeId);
+        return $query->whereHas('category', function ($q) use ($categoryId) {
+            $q->available()
+                ->when($categoryId, fn($q) => $q->where('id', $categoryId));
         });
+    }
+
+    /**
+     * Scope to search products by name (partial match)
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|null $search Search term
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSearchByName(Builder $query, string $search = null): Builder
+    {
+        return $query->when($search, fn($q) => $q->where('name', 'like', "%$search%"));
     }
 
     /**

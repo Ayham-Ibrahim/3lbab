@@ -99,24 +99,22 @@ class ProductController extends Controller
     }
 
     /**
-     * Retrieve all available sizes.
+     * Retrieve all available products that belong to available categories and stores.
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getAvailable(Request $request)
     {
-        $search = $request->input('search');
+        $products = Product::with(['images'])
+            ->select('id', 'name', 'price')
+            ->available()
+            ->availableInStore($request->input('store'))
+            ->availableInCategory($request->input('category'))
+            ->searchByName($request->input('search'))
+            ->paginate();
 
-        return $this->paginate(
-            Product::with(['images'])
-                ->select('id', 'name', 'price')
-                ->available(true)
-                ->store(($request->input('store')))
-                ->category(($request->input('category')))
-                ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
-                ->paginate(),
-            'Available Sizes retrieved successfully'
-        );
+        return $this->paginate($products, 'Available Products retrieved successfully');
     }
 
     /**
@@ -173,12 +171,12 @@ class ProductController extends Controller
             'images',
             'variants',
             'variants.size',
-            'variants.color', 
+            'variants.color',
             'store',
             'category'
         ])->findOrFail($id);
 
-        return $this->success($product,'Product retrieved successfully');
+        return $this->success($product, 'Product retrieved successfully');
     }
 
     /**
