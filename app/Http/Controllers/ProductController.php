@@ -62,9 +62,9 @@ class ProductController extends Controller
         return $this->paginate(
             Product::with(['store:id,name', 'images', 'category:id,name'])
                 ->available($is_available)
-                ->store(($request->input('store')))
-                ->category(($request->input('category')))
-                ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
+                ->availableInStore($request->input('store'))
+                ->availableInCategory($request->input('category'))
+                ->searchByName($request->input('search'))
                 ->paginate(),
             'Products retrieved successfully'
         );
@@ -90,9 +90,9 @@ class ProductController extends Controller
                     $q->where('manager_id', Auth::id());
                 })
                 ->available($is_available)
-                ->store(($request->input('store')))
-                ->category(($request->input('category')))
-                ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
+                ->availableInStore($request->input('store'))
+                ->availableInCategory($request->input('category'))
+                ->searchByName($request->input('search'))
                 ->paginate(),
             'Products retrieved successfully'
         );
