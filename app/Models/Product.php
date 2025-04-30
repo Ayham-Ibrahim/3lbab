@@ -89,7 +89,7 @@ class Product extends Model
     public function scopeAvailableInStore(Builder $query, $storeId = null): Builder
     {
         return $query->whereHas('store', function ($q) use ($storeId) {
-            $q->available()
+            $q->available(true)
                 ->when($storeId, fn($q) => $q->where('id', $storeId));
         });
     }
@@ -104,7 +104,7 @@ class Product extends Model
     public function scopeAvailableInCategory(Builder $query, $categoryId = null): Builder
     {
         return $query->whereHas('category', function ($q) use ($categoryId) {
-            $q->available()
+            $q->available(true)
                 ->when($categoryId, fn($q) => $q->where('id', $categoryId));
         });
     }
