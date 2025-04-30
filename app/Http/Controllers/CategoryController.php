@@ -64,7 +64,7 @@ class CategoryController extends Controller
 
         return $this->success(
             Category::select('id', 'name', 'image', 'is_available')
-                ->store($store->id)
+                ->store($store ? $store->id : null)
                 ->get(),
         );
     }
