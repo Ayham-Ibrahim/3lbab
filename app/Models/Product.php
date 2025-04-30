@@ -80,6 +80,40 @@ class Product extends Model
     }
 
     /**
+     * Scope a query to filter products by category.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int|array|null  $categoryId (Optional) Filter by category ID or array of IDs. If null, returns all.
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeCategory(Builder $query, $categoryId = null): Builder
+    {
+        return $query->when($categoryId !== null, function ($q) use ($categoryId) {
+            if (is_array($categoryId)) {
+                return $q->whereIn('category_id', $categoryId);
+            }
+            return $q->where('category_id', $categoryId);
+        });
+    }
+
+    /**
+     * Scope a query to filter products by store.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int|array|null  $storeId (Optional) Filter by store ID or array of IDs. If null, returns all.
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeStore(Builder $query, $storeId = null): Builder
+    {
+        return $query->when($storeId !== null, function ($q) use ($storeId) {
+            if (is_array($storeId)) {
+                return $q->whereIn('store_id', $storeId);
+            }
+            return $q->where('store_id', $storeId);
+        });
+    }
+
+    /**
      * Scope to filter products available in specific store(s) (with availability check)
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
