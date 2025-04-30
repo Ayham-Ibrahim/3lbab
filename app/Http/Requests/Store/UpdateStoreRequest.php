@@ -4,6 +4,7 @@ namespace App\Http\Requests\Store;
 
 use App\Http\Requests\BaseFormRequest;
 use App\Models\Store;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class UpdateStoreRequest extends BaseFormRequest
@@ -66,8 +67,8 @@ class UpdateStoreRequest extends BaseFormRequest
                         if (in_array($phone, $currentStorePhones)) {
                             continue;
                         }
-
-                        if (Store::where('id', '!=', $this->store->id)
+                        $storeId = $this->store ? $this->store->id : Auth::user()->store->id;
+                        if (Store::where('id', '!=', $storeId)
                             ->whereJsonContains('phones', $phone)
                             ->exists()
                         ) {
