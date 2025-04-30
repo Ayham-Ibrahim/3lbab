@@ -29,7 +29,7 @@ class UpdateStoreRequest extends BaseFormRequest
                 'nullable',
                 'string',
                 'max:255',
-                Rule::unique('stores')->ignore($this->store)
+                Rule::unique('stores')->ignore($this->store ?? Auth::user()->store)
             ],
             'description' => [
                 'nullable',
@@ -81,7 +81,7 @@ class UpdateStoreRequest extends BaseFormRequest
                 'nullable',
                 'email:rfc,dns',
                 'max:255',
-                Rule::unique('stores')->ignore($this->store)
+                Rule::unique('stores')->ignore($this->store ?? Auth::user()->store)
             ],
             'facebook_link' => [
                 'nullable',
