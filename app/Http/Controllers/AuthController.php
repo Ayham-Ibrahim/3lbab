@@ -81,7 +81,8 @@ class AuthController extends Controller
     public function logout()
     {
         // Use AuthService to handle logout by revoking user's tokens
-        $this->authService->logout();
+        // $this->authService->logout();
+        request()->user()->currentAccessToken()->delete();
 
         // Return a success response indicating the user has been logged out
         return $this->success(null, 'User logged out successfully');
