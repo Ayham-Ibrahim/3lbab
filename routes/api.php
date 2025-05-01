@@ -97,8 +97,10 @@ Route::middleware(['auth:api'])->group(function () {
         });
         Route::delete('images/{image}', [ProductController::class, 'deleteImage']);
         Route::delete('variants/{variant}', [ProductController::class, 'deleteVariant']);
+        Route::post('{product}/favourite', [ProductController::class, 'toggleFavourite']);
     });
     Route::get('product/form-data', [ProductController::class, 'getProductFormData']);
+    Route::get('/favourites', [ProductController::class, 'getFavourites']);
 });
 
 /*

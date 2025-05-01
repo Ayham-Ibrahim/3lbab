@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
 
 class Product extends Model
 {
@@ -193,5 +195,37 @@ class Product extends Model
     public function variants(): HasMany
     {
         return $this->hasMany(ProductVariant::class, 'product_id', 'id');
+    }
+
+    /**
+     * Get all of the favourites for the Product
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function favourites(): HasMany
+    {
+        return $this->hasMany(Favourite::class, 'product_id', 'id');
+    }
+
+    /**
+     * The favouriteBy that belong to the Product
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favouriteBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'favourites', 'product_id', 'user_id');
+    }
+
+    /**
+     * Check if product is favourited by current user
+     */
+    public function getIsFavouritedAttribute()
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        return $this->favourites()->where('user_id', Auth::id())->exists();
     }
 }

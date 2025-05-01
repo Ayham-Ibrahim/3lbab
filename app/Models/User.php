@@ -7,6 +7,8 @@ use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -67,5 +69,25 @@ class User extends Authenticatable
     public function store(): HasOne
     {
         return $this->hasOne(Store::class, 'manager_id');
+    }
+
+    /**
+     * Get all of the favourites for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function favourites(): HasMany
+    {
+        return $this->hasMany(Favourite::class, 'user_id', 'id');
+    }
+
+    /**
+     * The favouriteProducts that belong to the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favouriteProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'favourites', 'user_id', 'product_id');
     }
 }

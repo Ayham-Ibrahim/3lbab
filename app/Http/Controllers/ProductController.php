@@ -261,4 +261,45 @@ class ProductController extends Controller
             'categories' => $categories,
         ]);
     }
+
+    /**
+     * Toggle favourite status for a product
+     */
+    public function toggleFavourite(Product $product)
+    {
+        $user = Auth::user();
+
+        $favourite = $user->favourites()->where('product_id', $product->id)->first();
+
+        if ($favourite) {
+            $favourite->delete();
+            return $this->success(
+                ['is_favourited' => false],
+                'Product removed from favourites'
+            );
+        } else {
+            $user->favourites()->create(['product_id' => $product->id]);
+            return $this->success(
+                ['is_favourited' => true],
+                'Product added to favourites'
+            );
+        }
+    }
+
+    /**
+     * Get user's favourite products
+     */
+    public function getFavourites(Request $request)
+    {
+        $products = Auth::user()->favouriteProducts()
+            ->with(['images'])
+            ->select('id', 'name', 'price')
+            ->available(true)
+            ->availableInStore($request->input('store'))
+            ->availableInCategory($request->input('category'))
+            ->searchByName($request->input('search'))
+            ->paginate();
+
+            return $this->paginate($products, 'Favourite Products retrieved successfully');
+    }
 }
