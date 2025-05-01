@@ -293,7 +293,7 @@ class ProductController extends Controller
     {
         $products = Auth::user()->favouriteProducts()
             ->with(['images'])
-            ->select('id', 'name', 'price')
+            ->select('products.id', 'products.name', 'products.price')
             ->available(true)
             ->availableInStore($request->input('store'))
             ->availableInCategory($request->input('category'))
