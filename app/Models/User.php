@@ -90,4 +90,24 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Product::class, 'favourites', 'user_id', 'product_id');
     }
+
+    /**
+     * Get the info associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function info(): HasOne
+    {
+        return $this->hasOne(UserInfo::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get all of the complaints for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function complaints(): HasMany
+    {
+        return $this->hasMany(Complaint::class, 'manager_id', 'id');
+    }
 }
