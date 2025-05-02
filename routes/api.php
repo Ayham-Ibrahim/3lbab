@@ -5,8 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ColorController;
+use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
@@ -21,7 +23,6 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
-    Route::middleware('auth:sanctum')->get('admins', [UserController::class, 'getAdmins']);
 });
 
 /*
@@ -101,6 +102,26 @@ Route::middleware(['auth:api'])->group(function () {
     });
     Route::get('product/form-data', [ProductController::class, 'getProductFormData']);
     Route::get('/favourites', [ProductController::class, 'getFavourites']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Profile Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('profile')->group(function () {
+        Route::put('/', [ProfileController::class, 'update']);
+        Route::put('/reset-password', [ProfileController::class, 'resetPassword']);
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Complation Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('complation')->group(function () {
+        Route::post('/', [ComplaintController::class, 'store']);
+        Route::get('/admins', [ComplaintController::class, 'getAdmins']);
+    });
 });
 
 /*
@@ -115,7 +136,10 @@ Route::apiResource('categories', CategoryController::class)->only(['index', 'sho
 Route::apiResource('products', ProductController::class)->only(['index', 'show']);
 
 
-
-//LOG
+/*
+|--------------------------------------------------------------------------
+| Log Routes
+|--------------------------------------------------------------------------
+*/
 Route::delete('/reset-log', [LogController::class, 'resetLog']);
 Route::get('/logs', [LogController::class, 'getLog']);
