@@ -68,7 +68,7 @@ class StoreCartRequest extends BaseFormRequest
                         $totalDesiredQuantity = $quantityInCart + $requestedQuantity;
 
                         if ($variant->quantity < $totalDesiredQuantity) {
-                            $fail("الكمية الإجمالية المطلوبة لهذا المتغير (" . $totalDesiredQuantity . ") تتجاوز المخزون المتاح (" . $variant->quantity . ").");
+                            $fail("الكمية الإجمالية المطلوبة لهذه المواصفات (" . $totalDesiredQuantity . ") تتجاوز المخزون المتاح (" . $variant->quantity . ").");
                         }
                     }
                 }
