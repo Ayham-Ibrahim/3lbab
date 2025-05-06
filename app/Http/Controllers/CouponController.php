@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Coupon;
+use Illuminate\Http\Request;
+use App\Services\CouponService;
+use App\Http\Requests\Coupon\StoreCouponRequest;
+
+class CouponController extends Controller
+{
+    /**
+     * The service class responsible for handling Coupon-related business logic.
+     *
+     * @var \App\Services\CouponService
+     */
+    protected $couponService;
+
+    /**
+     * Create a new CouponController instance and inject the CouponService.
+     *
+     * @param \App\Services\CouponService $couponService The service responsible for coupon operations.
+     */
+    public function __construct(CouponService $couponService)
+    {
+        $this->couponService = $couponService;
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        return $this->success(
+            Coupon::latest()->get(),
+            'Coupons retrieved successfully',200
+        );
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreCouponRequest $request)
+    {
+        return $this->success(
+            $this->couponService->storeCoupon($request->validated()),
+            'Coupons created successfully',200
+        );
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Coupon $coupon)
+    {
+        return $this->success(
+            $coupon,
+            'Coupon retrieved successfully',200
+        );
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Coupon $coupon)
+    {
+        $coupon->delete();
+        return $this->success(null,'Coupon deleted successfully',200);
+    }
+}

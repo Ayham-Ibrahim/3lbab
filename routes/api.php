@@ -1,18 +1,20 @@
 <?php
 
+use App\Http\Controllers\CouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SizeController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ColorController;
-use App\Http\Controllers\ComplaintController;
-use App\Http\Controllers\LogController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\StoreController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SizeController;
-use App\Http\Controllers\StoreController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ComplaintController;
 
 /*
 |--------------------------------------------------------------------------
@@ -124,7 +126,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/items', [CartController::class, 'addToCart']);
         Route::delete('/{cart_item}/items', [CartController::class, 'destroyItem']);
     });
-
+    
     /*
     |--------------------------------------------------------------------------
     | Complation Routes
@@ -134,6 +136,27 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/', [ComplaintController::class, 'store']);
         Route::get('/admins', [ComplaintController::class, 'getAdmins']);
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Coupon Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('coupon')->group(function () {
+        Route::get('/', [CouponController::class, 'index']);
+        Route::post('/', [CouponController::class, 'store']);
+        Route::get('/{coupon}', [CouponController::class, 'show']);
+        Route::delete('/{coupon}', [CouponController::class, 'destroy']);
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Order Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/checkout', [OrderController::class, 'checkout']);
+
 });
 
 /*
