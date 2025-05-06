@@ -110,4 +110,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Complaint::class, 'manager_id', 'id');
     }
+
+    /**
+     * Get the cart associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function cart(): HasOne
+    {
+        return $this->hasOne(Cart::class, 'user_id', 'id');
+    }
 }

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\ComplaintController;
@@ -111,6 +112,17 @@ Route::middleware(['auth:api'])->group(function () {
     Route::prefix('profile')->group(function () {
         Route::put('/', [ProfileController::class, 'update']);
         Route::put('/reset-password', [ProfileController::class, 'resetPassword']);
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cart Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('cart')->group(function () {
+        Route::get('/', [CartController::class, 'myCart']);
+        Route::post('/items', [CartController::class, 'addToCart']);
+        Route::delete('/{cart_item}/items', [CartController::class, 'destroyItem']);
     });
 
     /*
