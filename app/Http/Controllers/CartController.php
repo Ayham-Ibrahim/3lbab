@@ -47,8 +47,8 @@ class CartController extends Controller
     {
         return $this->success(
             $this->cartService->removeItem(Auth::id(), $cartItem),
-            null,
-            204
+            'Item Deleted successfully',
+            200
         );
     }
 }
