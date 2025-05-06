@@ -3,8 +3,10 @@
 namespace App\Http\Requests\Cart;
 
 use App\Http\Requests\BaseFormRequest;
+use App\Models\Cart;
 use App\Models\ProductVariant;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class StoreCartRequest extends BaseFormRequest
@@ -25,6 +27,8 @@ class StoreCartRequest extends BaseFormRequest
     public function rules(): array
     {
         $productId = $this->input('product_id');
+        $variantId = $this->input('product_variant_id');
+        $requestedQuantity = (int) $this->input('quantity', 1);
 
         return [
             'product_id' => [
@@ -39,17 +43,35 @@ class StoreCartRequest extends BaseFormRequest
                 'required',
                 'integer',
                 Rule::exists('product_variants', 'id'),
-                function ($attribute, $value, $fail) use ($productId) {
-                    if ($value && $productId) {
+                function ($attribute, $value, $fail) use ($productId, $variantId, $requestedQuantity) {
+                    // $value here is the product_variant_id if provided
+                    if ($value && $productId) { // $value will be the same as $variantId if not null
                         $variant = ProductVariant::find($value);
                         if (!$variant || $variant->product_id != $productId) {
                             $fail('المتغير المختار لا ينتمي للمنتج المحدد.');
+                            return;
                         }
-                        if ($variant->quantity < $this->input('quantity', 1)) {
-                            $fail("الكمية المطلوبة للمتغير المحدد غير متوفرة في المخزون.");
+
+                        $currentCart = Cart::where('user_id', Auth::id())->first();
+                        $quantityInCart = 0;
+
+                        if ($currentCart) {
+                            $cartItem = $currentCart->items()
+                                ->where('product_id', $productId)
+                                ->where('product_variant_id', $value)
+                                ->first();
+                            if ($cartItem) {
+                                $quantityInCart = $cartItem->quantity;
+                            }
+                        }
+
+                        $totalDesiredQuantity = $quantityInCart + $requestedQuantity;
+
+                        if ($variant->quantity < $totalDesiredQuantity) {
+                            $fail("الكمية الإجمالية المطلوبة لهذا المتغير (" . $totalDesiredQuantity . ") تتجاوز المخزون المتاح (" . $variant->quantity . ").");
                         }
                     }
-                },
+                }
             ],
         ];
     }
