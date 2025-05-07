@@ -57,6 +57,7 @@ class ComplaintController extends Controller
             ->get()
             ->map(function ($user) {
                 if ($user->store) {
+                    $data['store_id'] = $user->store->id;
                     $data['store_name'] = $user->store->store_name;
                 }
 

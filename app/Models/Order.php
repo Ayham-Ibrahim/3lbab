@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Store;
 use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,6 +16,7 @@ class Order extends Model
      */
     protected $fillable = [
         'user_id',
+        'store_id',
         'total_price',
         'status',
     ];
@@ -46,5 +48,14 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * the store that has the order
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Store, Coupon>
+     */
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
     }
 }
