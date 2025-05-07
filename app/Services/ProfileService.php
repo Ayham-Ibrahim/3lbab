@@ -33,6 +33,7 @@ class ProfileService extends Service
                 [
                     'photo' => isset($data['photo']) ? FileStorage::storeFile($data['photo'], 'Profule', 'img') : null,
                     'whatsAppNumber' => $data['whatsAppNumber'] ?? null,
+                    'location' => $data['location'] ?? null,
                 ]
             );
 

@@ -15,57 +15,67 @@ class OrderService extends Service {
     public function checkout(int $userId,?string $couponCode = null)
     {
         $cart = Cart::with('items.product', 'items.productVariant')->where('user_id', $userId)->firstOrFail();
-        $coupon = null;
-        $discount = 0;
-        $totalBeforeDiscount = $cart->total_price;
 
-        // check coupon and calculate the new price if exists
+        $coupon = null;
         if ($couponCode) {
             $coupon = Coupon::where('code', $couponCode)->first();
-
             if (!$coupon || !$coupon->isValid()) {
                 throw new \Exception('Invalid or expired coupon.');
             }
-            $discount = $coupon->calculateDiscount($totalBeforeDiscount);
         }
-        $total = $totalBeforeDiscount - $discount;
 
-        // make order
+        $groupedItems = $cart->items->groupBy(fn($item) => $item->product->store_id);
+
         DB::beginTransaction();
         try {
-            foreach ($cart->items as $item) {
-                $variant = $item->productVariant;
+            foreach ($groupedItems as $storeId => $items) {
+                $totalBeforeDiscount = $items->sum(fn($item) => $item->quantity * $item->product->price);
+                $discount = 0;
 
-                if (!$variant || $variant->quantity < $item->quantity) {
-                    throw new \Exception("Insufficient quantity for product: " . $item->product->name);
+                if ($coupon && $coupon->store_id !== $storeId) {
+                    throw new \Exception("Coupon not valid for this store.");
+                }
+
+                if ($coupon) {
+                    $discount = $coupon->calculateDiscount($totalBeforeDiscount);
+                }
+
+                $total = $totalBeforeDiscount - $discount;
+
+                foreach ($items as $item) {
+                    $variant = $item->productVariant;
+                    if (!$variant || $variant->quantity < $item->quantity) {
+                        throw new \Exception("Insufficient quantity for product: " . $item->product->name);
+                    }
+                }
+
+                $order = Order::create([
+                    'user_id' => $userId,
+                    'store_id' => $storeId,
+                    'total_price' => $total,
+                    'discount_amount' => $discount,
+                    'coupon_id' => $coupon?->id,
+                    'status' => 'pending',
+                ]);
+
+                foreach ($items as $item) {
+                    $item->productVariant->decrement('quantity', $item->quantity);
+                    $order->items()->create([
+                        'product_id' => $item->product_id,
+                        'product_variant_id' => $item->product_variant_id,
+                        'quantity' => $item->quantity,
+                        'price' => $item->product->price,
+                    ]);
+                    $item->delete(); 
+                }
+
+                if ($coupon) {
+                    $coupon->incrementUsage();
                 }
             }
-            $order = Order::create([
-                'user_id' => $userId,
-                'total_price' => $total,
-                'discount_amount' => $discount,
-                'coupon_id' => $coupon?->id,
-                'status' => 'pending',
-            ]);
-            foreach ($cart->items as $item) {
-                $variant = $item->productVariant;
-                $variant->decrement('quantity', $item->quantity);
-                $order->items()->create([
-                    'product_id' => $item->product_id,
-                    'product_variant_id' => $item->product_variant_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->product->price,
-                ]);
-            }
-            
-            // increase the number of coupon's usage
-            if ($coupon) {
-                $coupon->incrementUsage();
-            }    
-            // empty cart
-            $cart->items()->delete();
+
             DB::commit();
-            return $order;
+            return true;
         } catch (\Throwable $th) {
             Log::error($th);
             DB::rollBack();

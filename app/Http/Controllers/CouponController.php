@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use App\Models\Store;
 use App\Models\Coupon;
 use Illuminate\Http\Request;
 use App\Services\CouponService;
@@ -31,8 +33,9 @@ class CouponController extends Controller
      */
     public function index()
     {
+        $store = Store::where('manager_id',Auth::id())->first();
         return $this->success(
-            Coupon::latest()->get(),
+            Coupon::where('store_id', $store->id)->get(),
             'Coupons retrieved successfully',200
         );
     }

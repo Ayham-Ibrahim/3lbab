@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Coupon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 class Store extends Model
 {
@@ -147,5 +148,13 @@ class Store extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'store_id', 'id');
+    }
+
+    /**
+     * the store hase many couponse 
+     * @return HasMany<Coupon, Store>
+     */
+    public function coupons(){
+        return $this->hasMany(Coupon::class,'store_id', 'id');
     }
 }
