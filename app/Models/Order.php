@@ -17,6 +17,7 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'store_id',
+        'code',
         'total_price',
         'status',
     ];
@@ -57,5 +58,16 @@ class Order extends Model
     public function store()
     {
         return $this->belongsTo(Store::class);
+    }
+
+    /**
+     * Scope a query to filter orders by status.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|null $status
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilterWithStatus($query,?string $status){
+        return $query->when($status, fn($q) => $q->where('status',$status));
     }
 }

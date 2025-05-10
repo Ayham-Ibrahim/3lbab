@@ -156,6 +156,14 @@ Route::middleware(['auth:api'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::post('/checkout', [OrderController::class, 'checkout']);
+    Route::prefix('orders')->group(function () {
+        Route::get('/my', [OrderController::class, 'myOrders']);
+        Route::get('/', [OrderController::class, 'index']);
+        Route::get('/{order}', [OrderController::class, 'show']);
+        Route::put('/{order}', [OrderController::class, 'updateStatus']);
+        Route::delete('/{order}', [OrderController::class, 'destroy']);
+    });
+
 
 });
 
