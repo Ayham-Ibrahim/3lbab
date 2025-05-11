@@ -33,7 +33,10 @@ class StoreManagerSeeder extends Seeder
             'delete-products',
             'manage-products',
             'delete-product-images',
-            'delete-product-variants'
+            'delete-product-variants',
+            'list-my-complaints',
+            'is-readed-complaints',
+            'delete-complaints'
         ];
 
         $storeManager->syncPermissions($permissions);

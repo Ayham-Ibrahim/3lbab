@@ -158,6 +158,21 @@ class Product extends Model
     }
 
     /**
+     * Scope to sort products by the number of times they have been favourited.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  bool|null  $sortByMostFavourited If true, sorts by favourites count descending.
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSortByMostFavourited(Builder $query, ?bool $sortByMostFavourited = null): Builder
+    {
+        return $query->when($sortByMostFavourited === true, function ($q) {
+            return $q->withCount('favourites')
+                ->orderBy('favourites_count', 'desc');
+        });
+    }
+
+    /**
      * Get the store that owns the Product
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

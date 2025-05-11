@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained('users')->cascadeOnDelete();
             $table->text('content');
             $table->string('image');
+            $table->boolean('is_readed')->default(false);
             $table->timestamps();
         });
     }

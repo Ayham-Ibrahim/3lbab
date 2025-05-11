@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -26,6 +28,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_available'
     ];
 
     /**
@@ -49,6 +52,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_available' => 'boolean',
         ];
     }
 
@@ -56,9 +60,32 @@ class User extends Authenticatable
         'role'
     ];
 
+    /**
+     * Get the is_available attribute correctly casted
+     *
+     * @param  mixed  $value
+     * @return bool
+     */
+    public function getIsAvailableAttribute($value)
+    {
+        return (bool)$value;
+    }
+
     public function getRoleAttribute(): string
     {
         return $this->roles->pluck('name')->implode(', ');
+    }
+
+    /**
+     * Scope a query to filter users based on availability.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  bool|null  $isAvailable (Optional) Filter by availability status. If null, returns all.
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeAvailable(Builder $query, ?bool $isAvailable = null): Builder
+    {
+        return $query->when($isAvailable !== null, fn($q) => $q->where('is_available', $isAvailable));
     }
 
     /**
