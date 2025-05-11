@@ -131,8 +131,7 @@ class OrderService extends Service {
     public function getUserOrders(int $userId , ?string $status = null)
     {
         try {
-            return Order::with('items.product', 'items.productVariant')
-                ->where('user_id', $userId)
+            return Order::where('user_id', $userId)
                 ->filterWithStatus($status)
                 ->latest()
                 ->get();
