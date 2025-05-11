@@ -15,6 +15,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\UserContoller;
 
 /*
 |--------------------------------------------------------------------------
@@ -126,7 +127,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/items', [CartController::class, 'addToCart']);
         Route::delete('/{cart_item}/items', [CartController::class, 'destroyItem']);
     });
-    
+
     /*
     |--------------------------------------------------------------------------
     | Complation Routes
@@ -135,6 +136,10 @@ Route::middleware(['auth:api'])->group(function () {
     Route::prefix('complation')->group(function () {
         Route::post('/', [ComplaintController::class, 'store']);
         Route::get('/admins', [ComplaintController::class, 'getAdmins']);
+        Route::get('/', [ComplaintController::class, 'index']);
+        Route::get('/my', [ComplaintController::class, 'managerComplaints']);
+        Route::patch('/{complation}/is-readed', [ComplaintController::class, 'markAsRead']);
+        Route::delete('/', [ComplaintController::class, 'destroy']);
     });
 
     /*
@@ -157,6 +162,13 @@ Route::middleware(['auth:api'])->group(function () {
     */
     Route::post('/checkout', [OrderController::class, 'checkout']);
 
+    /*
+    |--------------------------------------------------------------------------
+    | User Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::apiResource('/users', UserContoller::class);
+    Route::patch('users/{user}/toggle-available', [UserContoller::class, 'toggleAvailable']);
 });
 
 /*

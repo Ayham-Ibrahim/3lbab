@@ -57,14 +57,18 @@ class ProductController extends Controller
             ? null
             : ($request->input('is_available') == 'true' ? 1 : 0);
 
+        $sortByFavourites = filter_var($request->input('sort_by_favourites'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
         $search = $request->input('search');
 
         return $this->paginate(
             Product::with(['store:id,name', 'images', 'category:id,name'])
+                ->withCount('favourites')
                 ->available($is_available)
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
                 ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
+                ->sortByMostFavourited($sortByFavourites)
                 ->paginate(),
             'Products retrieved successfully'
         );
@@ -82,10 +86,13 @@ class ProductController extends Controller
             ? null
             : ($request->input('is_available') == 'true' ? 1 : 0);
 
+        $sortByFavourites = filter_var($request->input('sort_by_favourites'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
         $search = $request->input('search');
 
         return $this->paginate(
             Product::with(['store:id,name', 'images', 'category:id,name'])
+                ->withCount('favourites')
                 ->whereHas('store', function ($q) {
                     $q->where('manager_id', Auth::id());
                 })
@@ -93,6 +100,7 @@ class ProductController extends Controller
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
                 ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
+                ->sortByMostFavourited($sortByFavourites)
                 ->paginate(),
             'Products retrieved successfully'
         );
@@ -300,6 +308,6 @@ class ProductController extends Controller
             ->searchByName($request->input('search'))
             ->paginate();
 
-            return $this->paginate($products, 'Favourite Products retrieved successfully');
+        return $this->paginate($products, 'Favourite Products retrieved successfully');
     }
 }
