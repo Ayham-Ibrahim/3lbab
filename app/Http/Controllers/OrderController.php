@@ -6,6 +6,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Order\UpdateStatusRequest;
 
 class OrderController extends Controller
 {
@@ -29,26 +30,20 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        return $this->success(
+            $this->orderService->listOrders($request->query('status')),
+        'Orders retrieved successfully',200);
     }
 
-    public function checkout()
+    public function checkout(Request $request)
     {
-        try {
-            $order = $this->orderService->checkout(Auth::id());
-
-            return response()->json([
-                'message' => 'Order created successfully.',
-                'data' => $order->load('items.product', 'items.productVariant')
-            ], 201);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'message' => 'Checkout failed.',
-                'error' => $e->getMessage()
-            ], 400);
-        }
+        return $this->success(
+            $this->orderService->checkout(Auth::id(), $request->get('coupon')),
+            'Order created successfully.',
+            201
+        );
     }
 
     /**
@@ -56,16 +51,22 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        //
+        $order->load([
+            'items.product',
+            'items.productVariant',
+            'user',
+        ]);
+
+        return $this->success($order,'Order retrieved successfully',200);
     }
 
    /**
      * Update the status of a specific order.
      */
-    public function updateStatus(Request $request, int $orderId)
+    public function updateStatus(UpdateStatusRequest $request,Order $order)
     {
         return $this->success(
-            $this->orderService->updateOrderStatus($orderId, $request->validated()),
+            $this->orderService->updateOrderStatus($order, $request->validated()),
             'Order status updated'
         );
     }
@@ -75,16 +76,17 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        //
+        $order->delete();
+        return $this->success(null,'Order deleted successfully',200);
     }
 
     /**
-     * Get all orders for the authenticated user.
+     * Get all orders for the authenticated user.(for auth user)
      */
-    public function myOrders()
+    public function myOrders(Request $request)
     {
         return $this->success(
-            $this->orderService->getUserOrders(Auth::id())
+            $this->orderService->getUserOrders(Auth::id(),$request->query('status'))
         );
     }
 }
