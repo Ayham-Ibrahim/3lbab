@@ -4,18 +4,55 @@ namespace App\Services;
 
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\Store;
 use App\Models\Coupon;
 use App\Services\Service;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 
 class OrderService extends Service {
 
+    /**
+     * list orders that belongs to specifiec store 
+     * @param mixed $status
+     * @return \Illuminate\Database\Eloquent\Collection<int, Order>|null
+     */
+    public function listOrders(?string $status = null) {
+
+        $store = Store::where('manager_id',  Auth::id())->first();
+        if (!$store) {
+            $this->throwExceptionJson("No store found for this manager.");
+        }
+        try {
+            return Order::select('id','user_id','code','total_price','coupon_id','discount_amount','status','store_id','created_at')
+                ->where('store_id',$store->id)
+                ->filterWithStatus($status)
+                ->latest()
+                ->get();
+        } catch (\Throwable $th) {
+            Log::error($th);
+            DB::rollBack();
+            if ($th instanceof HttpResponseException) {
+                throw $th;
+            }
+            $this->throwExceptionJson();
+        }
+    }
+
+    /**
+     * checkout my order (for customer)
+     * @param int $userId
+     * @param mixed $couponCode
+     * @throws \Exception
+     * @return Order[]|null
+     */
     public function checkout(int $userId,?string $couponCode = null)
     {
         $cart = Cart::with('items.product', 'items.productVariant')->where('user_id', $userId)->firstOrFail();
-
+        $orders = [];
         $coupon = null;
         if ($couponCode) {
             $coupon = Coupon::where('code', $couponCode)->first();
@@ -30,13 +67,12 @@ class OrderService extends Service {
         try {
             foreach ($groupedItems as $storeId => $items) {
                 $totalBeforeDiscount = $items->sum(fn($item) => $item->quantity * $item->product->price);
-                $discount = 0;
 
-                if ($coupon && $coupon->store_id !== $storeId) {
-                    throw new \Exception("Coupon not valid for this store.");
-                }
-
-                if ($coupon) {
+                // add the coupon just for the store which has the coupon
+                $validCouponForThisStore = $coupon && $coupon->store_id === $storeId;
+                if ($coupon && !$validCouponForThisStore) {
+                    $discount = 0;
+                } elseif ($validCouponForThisStore) {
                     $discount = $coupon->calculateDiscount($totalBeforeDiscount);
                 }
 
@@ -54,10 +90,11 @@ class OrderService extends Service {
                     'store_id' => $storeId,
                     'total_price' => $total,
                     'discount_amount' => $discount,
-                    'coupon_id' => $coupon?->id,
+                    'coupon_id' => $validCouponForThisStore ? $coupon->id : null,
                     'status' => 'pending',
+                    'code' => $this->generateOrderCode(),
                 ]);
-
+                $orders[] = $order;
                 foreach ($items as $item) {
                     $item->productVariant->decrement('quantity', $item->quantity);
                     $order->items()->create([
@@ -69,13 +106,13 @@ class OrderService extends Service {
                     $item->delete(); 
                 }
 
-                if ($coupon) {
+                if ($validCouponForThisStore) {
                     $coupon->incrementUsage();
                 }
             }
 
             DB::commit();
-            return true;
+            return $orders;
         } catch (\Throwable $th) {
             Log::error($th);
             DB::rollBack();
@@ -91,11 +128,11 @@ class OrderService extends Service {
      * @param int $userId
      * @return \Illuminate\Database\Eloquent\Collection<int, Order>|null
      */
-    public function getUserOrders(int $userId)
+    public function getUserOrders(int $userId , ?string $status = null)
     {
         try {
-            return Order::with('items.product', 'items.productVariant')
-                ->where('user_id', $userId)
+            return Order::where('user_id', $userId)
+                ->filterWithStatus($status)
                 ->latest()
                 ->get();
         } catch (\Throwable $th) {
@@ -114,13 +151,11 @@ class OrderService extends Service {
      * @param string $status
      * @return Order|null
      */
-    public function updateOrderStatus(int $orderId, string $data)
+    public function updateOrderStatus($order, array $data)
     {
         try {
-            $order = Order::findOrFail($orderId);
             $order->update(['status' => $data['status']]);
-    
-            return $order->fresh(['items.product', 'items.productVariant']);
+            return $order;
         } catch (\Throwable $th) {
             Log::error($th);
             DB::rollBack();
@@ -132,6 +167,16 @@ class OrderService extends Service {
  
     }
 
+    /**
+     * generate Order code
+     * @return string
+     */
+    protected function generateOrderCode(): string
+    {
+        $datePart = now()->format('Ymd');
+        $randomPart = strtoupper(Str::random(6));
+        return "ORD-{$datePart}-{$randomPart}";
+    }
 
 
 
