@@ -27,7 +27,9 @@ class OrderService extends Service {
             $this->throwExceptionJson("No store found for this manager.");
         }
         try {
-            return Order::select('id','user_id','code','total_price','coupon_id','discount_amount','status','store_id','created_at')
+            return Order::with([
+                    'store:id,name,logo' 
+                ])->select('id','user_id','code','total_price','coupon_id','discount_amount','status','store_id','created_at')
                 ->where('store_id',$store->id)
                 ->filterWithStatus($status)
                 ->latest()
@@ -131,8 +133,11 @@ class OrderService extends Service {
     public function getUserOrders(int $userId , ?string $status = null)
     {
         try {
-            return Order::where('user_id', $userId)
+            return Order::with([
+                    'store:id,name,logo' 
+                ])->where('user_id', $userId)
                 ->filterWithStatus($status)
+                ->without('items')
                 ->latest()
                 ->get();
         } catch (\Throwable $th) {

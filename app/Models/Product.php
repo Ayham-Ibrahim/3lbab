@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Offer;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Auth;
 
 class Product extends Model
 {
@@ -242,5 +243,38 @@ class Product extends Model
         }
 
         return $this->favourites()->where('user_id', Auth::id())->exists();
+    }
+
+    /**
+     * offers applied to the product
+     * @return BelongsToMany<Offer, Product>
+     */
+    public function offers()
+    {
+        return $this->belongsToMany(Offer::class);
+    }
+
+    /**
+     * active offer on this product
+     * @return Offer|null
+     */
+    public function activeOffer()
+    {
+        return $this->offers()
+            ->where('starts_at', '<=', now())
+            ->where('ends_at', '>=', now())
+            ->latest('starts_at')
+            ->first();
+    }
+
+    /**
+     * current offer 
+     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough<Offer, Product>
+     */
+    public function currentOffer()
+    {
+        return $this->hasOneThrough(Offer::class,'offer_product', 'product_id', 'id', 'id', 'offer_id')
+                    ->where('starts_at', '<=', now())
+                    ->where('ends_at', '>=', now());
     }
 }
