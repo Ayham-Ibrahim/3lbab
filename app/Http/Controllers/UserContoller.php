@@ -25,12 +25,12 @@ class UserContoller extends Controller
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;
-        $this->middleware(['permission:list-users'])->only('index');
-        $this->middleware(['permission:show-users'])->only('show');
-        $this->middleware(['permission:store-users'])->only('store');
-        $this->middleware(['permission:update-users'])->only('update');
-        $this->middleware(['permission:delete-users'])->only('destroy');
-        $this->middleware(['permission:toggle-available-users'])->only('toggleAvailable');
+        // $this->middleware(['permission:list-users'])->only('index');
+        // $this->middleware(['permission:show-users'])->only('show');
+        // $this->middleware(['permission:store-users'])->only('store');
+        // $this->middleware(['permission:update-users'])->only('update');
+        // $this->middleware(['permission:delete-users'])->only('destroy');
+        // $this->middleware(['permission:toggle-available-users'])->only('toggleAvailable');
     }
 
     /**

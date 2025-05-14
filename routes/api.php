@@ -1,21 +1,22 @@
 <?php
 
-use App\Http\Controllers\CouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\UserContoller;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ColorController;
+use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ComplaintController;
-use App\Http\Controllers\UserContoller;
 
 /*
 |--------------------------------------------------------------------------
@@ -177,6 +178,14 @@ Route::middleware(['auth:api'])->group(function () {
     */
     Route::apiResource('/users', UserContoller::class);
     Route::patch('users/{user}/toggle-available', [UserContoller::class, 'toggleAvailable']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Offer Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::apiResource('offers', OfferController::class);
+
 });
 
 /*
