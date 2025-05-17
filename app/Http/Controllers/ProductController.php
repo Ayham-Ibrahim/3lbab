@@ -36,15 +36,15 @@ class ProductController extends Controller
     public function __construct(ProductService $productService)
     {
         $this->productService = $productService;
-        $this->middleware(['permission:list-products'])->only('index');
-        $this->middleware(['permission:list-my-products'])->only('myProducts');
-        $this->middleware(['permission:store-products'])->only('store');
-        $this->middleware(['permission:store-my-products'])->only('storeMyProduct');
-        $this->middleware(['permission:show-products'])->only('show');
-        $this->middleware(['permission:update-products'])->only('update');
-        $this->middleware(['permission:delete-products'])->only('destroy');
-        $this->middleware(['permission:delete-product-images'])->only('deleteImage');
-        $this->middleware(['permission:delete-product-variants'])->only('deleteVariant');
+        // $this->middleware(['permission:list-products'])->only('index');
+        // $this->middleware(['permission:list-my-products'])->only('myProducts');
+        // $this->middleware(['permission:store-products'])->only('store');
+        // $this->middleware(['permission:store-my-products'])->only('storeMyProduct');
+        // $this->middleware(['permission:show-products'])->only('show');
+        // $this->middleware(['permission:update-products'])->only('update');
+        // $this->middleware(['permission:delete-products'])->only('destroy');
+        // $this->middleware(['permission:delete-product-images'])->only('deleteImage');
+        // $this->middleware(['permission:delete-product-variants'])->only('deleteVariant');
         // $this->middleware(['permission:manage-products'])->only('getProductFormData');
     }
 
@@ -60,16 +60,23 @@ class ProductController extends Controller
         $sortByFavourites = filter_var($request->input('sort_by_favourites'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
         $search = $request->input('search');
-
-        return $this->paginate(
-            Product::with(['store:id,name', 'images', 'category:id,name'])
+        $data = Product::with(['store:id,name', 'images', 'category:id,name','currentOffer'])
                 ->withCount('favourites')
                 ->available($is_available)
                 ->store(($request->input('store')))
                 ->category(($request->input('category')))
                 ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
                 ->sortByMostFavourited($sortByFavourites)
-                ->paginate(),
+                ->paginate();
+        $data->getCollection()->transform(function ($product) {
+            $offer = $product->currentOffer->first();
+            $product->final_price = $offer
+                ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
+                : $product->price;
+            return $product;
+        });
+        return $this->paginate(
+            $data,
             'Products retrieved successfully'
         );
     }
@@ -90,8 +97,8 @@ class ProductController extends Controller
 
         $search = $request->input('search');
 
-        return $this->paginate(
-            Product::with(['store:id,name', 'images', 'category:id,name'])
+        
+        $data =  Product::with(['store:id,name', 'images', 'category:id,name','currentOffer'])
                 ->withCount('favourites')
                 ->whereHas('store', function ($q) {
                     $q->where('manager_id', Auth::id());
@@ -101,7 +108,17 @@ class ProductController extends Controller
                 ->category(($request->input('category')))
                 ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
                 ->sortByMostFavourited($sortByFavourites)
-                ->paginate(),
+                ->paginate();
+        
+        $data->getCollection()->transform(function ($product) {
+            $offer = $product->currentOffer->first();
+            $product->final_price = $offer
+                ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
+                : $product->price;
+            return $product;
+        });        
+        
+        return $this->paginate($data,
             'Products retrieved successfully'
         );
     }
@@ -114,13 +131,21 @@ class ProductController extends Controller
      */
     public function getAvailable(Request $request)
     {
-        $products = Product::with(['images'])
+        $products = Product::with(['images', 'currentOffer'])
             ->select('id', 'name', 'price')
             ->available(true)
             ->availableInStore($request->input('store'))
             ->availableInCategory($request->input('category'))
             ->searchByName($request->input('search'))
             ->paginate();
+
+        $products->getCollection()->transform(function ($product) {
+            $offer = $product->currentOffer->first();
+            $product->final_price = $offer
+                ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
+                : $product->price;
+            return $product;
+        });
 
         return $this->paginate($products, 'Available Products retrieved successfully');
     }
