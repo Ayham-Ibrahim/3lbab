@@ -65,9 +65,12 @@ class CouponController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request,Coupon $coupon)
     {
-        //
+        return $this->success(
+            $this->couponService->updateCoupon($coupon,$request->validated()),
+            'Coupons updated successfully',200
+        );
     }
 
     /**
