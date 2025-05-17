@@ -254,27 +254,29 @@ class Product extends Model
         return $this->belongsToMany(Offer::class);
     }
 
-    /**
-     * active offer on this product
-     * @return Offer|null
-     */
-    public function activeOffer()
-    {
-        return $this->offers()
-            ->where('starts_at', '<=', now())
-            ->where('ends_at', '>=', now())
-            ->latest('starts_at')
-            ->first();
-    }
-
+    
     /**
      * current offer 
-     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough<Offer, Product>
+     * @return BelongsToMany<Offer, Product>
      */
     public function currentOffer()
     {
-        return $this->hasOneThrough(Offer::class,'offer_product', 'product_id', 'id', 'id', 'offer_id')
-                    ->where('starts_at', '<=', now())
-                    ->where('ends_at', '>=', now());
+        return $this->belongsToMany(Offer::class, 'offer_product', 'product_id', 'offer_id')
+            ->where('starts_at', '<=', now())
+            ->where('ends_at', '>=', now())
+            ->latest('starts_at');
+    }
+
+    /**
+     *  getFinal Price after applying  offer 
+     */
+    public function getFinalPriceAttribute()
+    {
+        $offer = $this->currentOffer->first(); // أو $this->current_offer لو كنت عامل accessor
+        if ($offer) {
+            return round($this->price - ($this->price * $offer->discount_percentage / 100), 2);
+        }
+
+        return $this->price;
     }
 }
