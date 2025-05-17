@@ -151,6 +151,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::prefix('coupon')->group(function () {
         Route::get('/', [CouponController::class, 'index']);
         Route::post('/', [CouponController::class, 'store']);
+        Route::put('/{coupon}/update', [CouponController::class, 'update']);
         Route::get('/{coupon}', [CouponController::class, 'show']);
         Route::delete('/{coupon}', [CouponController::class, 'destroy']);
     });

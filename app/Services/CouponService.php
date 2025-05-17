@@ -38,4 +38,29 @@ class CouponService extends Service
             $this->throwExceptionJson();
         }
     }
+
+    /**
+     * update a coupon
+     * @param mixed $data
+     * @throws \Exception
+     * @return Coupon|null 
+     */
+    public function updateCoupon(Coupon $coupon,string $data)
+    {
+        try {
+            $coupon->update(array_filter([
+                'code'                  => $data['code'] ?? $coupon->code,
+                'discount_percentage'   => $data['discount_percentage'] ?? $coupon->discount_percentage,
+                'max_uses'              => $data['max_uses'] ?? $coupon->max_uses,
+                'expires_at'            => $data['expires_at'] ?? $coupon->expires_at,
+            ]));
+            return $coupon;
+        } catch (\Throwable $th) {
+            Log::error($th);
+            if ($th instanceof HttpResponseException) {
+                throw $th;
+            }
+            $this->throwExceptionJson();
+        }
+    }
 }
