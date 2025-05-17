@@ -11,7 +11,7 @@ class UpdateCouponRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class UpdateCouponRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'code' => 'nullable|string|unique:coupons,code|max:8',
+            'discount_percentage' => 'nullable|numeric|min:1|max:100',
+            'max_uses' => 'nullable|integer|min:1',
+            'expires_at' => 'nullable|date|after:today',
         ];
     }
 }

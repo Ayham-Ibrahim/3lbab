@@ -8,6 +8,7 @@ use App\Models\Coupon;
 use Illuminate\Http\Request;
 use App\Services\CouponService;
 use App\Http\Requests\Coupon\StoreCouponRequest;
+use App\Http\Requests\Coupon\UpdateCouponRequest;
 
 class CouponController extends Controller
 {
@@ -65,7 +66,7 @@ class CouponController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request,Coupon $coupon)
+    public function update(UpdateCouponRequest $request,Coupon $coupon)
     {
         return $this->success(
             $this->couponService->updateCoupon($coupon,$request->validated()),
