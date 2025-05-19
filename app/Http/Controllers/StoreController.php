@@ -176,45 +176,50 @@ class StoreController extends Controller
         return $this->success(null, 'Store deleted successfully', 204);
     }
 
-/**
- * Get store's form data for admin dashboard
- * @param \Illuminate\Http\Request $request
- * @return mixed|\Illuminate\Http\JsonResponse
- */
-public function StoreFormData(Request $request)
-{
-    $storeId = $request->get('store');
+    /**
+     * Get store's form data for admin dashboard
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function StoreFormData(Request $request)
+    {
+        $storeId = $request->get('store');
 
-    // Get admins who don't have stores
-    $admins = User::role(['admin', 'storeManager'])
-        ->whereDoesntHave('store')
-        ->select('id', 'name')
-        ->get()
-        ->map(function ($admin) {
-            if ($admin->id === Auth::id()) {
-                $admin->name = 'أنا (' . $admin->name . ')';
-            }
-            return $admin;
-        });
+        $categories = Category::available(true)->select('id', 'name')->get();
 
-    $categories = Category::available(true)->select('id', 'name')->get();
+        if ($storeId) {
+            $store = Store::with(['categories:id,name', 'manager:id,name'])->findOrFail($storeId);
 
-    if ($storeId) {
-        $store = Store::with(['categories:id,name'])
-            ->findOrFail($storeId);
+            $admins = collect([
+                [
+                    'id' => $store->manager->id,
+                    'name' => $store->manager->name
+                ]
+            ]);
+
+            return response()->json([
+                'mode' => 'edit',
+                'store' => $store,
+                'admins' => $admins,
+                'categories' => $categories,
+            ]);
+        }
+
+        $admins = User::role(['admin', 'storeManager'])
+            ->whereDoesntHave('store')
+            ->select('id', 'name')
+            ->get()
+            ->map(function ($admin) {
+                if ($admin->id === Auth::id()) {
+                    $admin->name = 'أنا (' . $admin->name . ')';
+                }
+                return $admin;
+            });
 
         return response()->json([
-            'mode' => 'edit',
-            'store' => $store,
+            'mode' => 'create',
             'admins' => $admins,
             'categories' => $categories,
         ]);
     }
-
-    return response()->json([
-        'mode' => 'create',
-        'admins' => $admins,
-        'categories' => $categories,
-    ]);
-}
 }
