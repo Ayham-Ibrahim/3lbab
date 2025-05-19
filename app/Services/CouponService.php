@@ -45,7 +45,7 @@ class CouponService extends Service
      * @throws \Exception
      * @return Coupon|null 
      */
-    public function updateCoupon(Coupon $coupon,string $data)
+    public function updateCoupon(Coupon $coupon,array $data)
     {
         try {
             $coupon->update(array_filter([
