@@ -57,7 +57,7 @@ class OfferController extends Controller
     public function show(Offer $offer)
     {
         return $this->success(
-             $offer->load(['products']),
+            $offer->load(['products']),
         'Offers retrieved successfully',200);
     }
 
@@ -79,8 +79,28 @@ class OfferController extends Controller
     public function destroy(Offer $offer)
     {
         $offer->delete();
-          return $this->success(
+        return $this->success(
             null,
         'Offers deleted successfully',200);
     }
+
+    /**
+     * get offer's form data
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function getOfferFormData(Request $request){
+
+        $result = $this->offerService->getFormData($request->input('offer_id'));
+
+        if (!$result['status']) {
+            return response()->json(['message' => $result['message']], $result['code']);
+        }
+        return $this->success(
+            $result['data'],
+        'data retrieved successfully',200);
+    }
+
+
+
 }

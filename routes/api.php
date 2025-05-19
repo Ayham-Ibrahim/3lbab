@@ -194,6 +194,7 @@ Route::middleware(['auth:api'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::apiResource('offers', OfferController::class);
+    Route::get('offers/form-data', [OfferController::class, 'getOfferFormData']);
 
 });
 
