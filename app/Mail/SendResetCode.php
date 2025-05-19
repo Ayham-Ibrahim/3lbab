@@ -13,16 +13,18 @@ class SendResetCode extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $token;
+    public $otp;
+    public $userName;
 
-    public function __construct($token)
+    public function __construct($otp, $userName)
     {
-        $this->token = $token;
+        $this->otp = $otp;
+        $this->userName = $userName;
     }
 
     public function build()
     {
-        return $this->subject('Password Reset Code')
-            ->view('emails.reset-code');
+        return $this->markdown('emails.reset_code')
+                    ->subject('رمز استعادة كلمة المرور');
     }
 }
