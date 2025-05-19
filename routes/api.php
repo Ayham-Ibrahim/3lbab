@@ -212,7 +212,9 @@ Route::middleware(['auth:api'])->group(function () {
     | Offer Routes
     |--------------------------------------------------------------------------
     */
+    Route::get('offers/get-form-data', [OfferController::class, 'getOfferFormData']);
     Route::apiResource('offers', OfferController::class);
+
 });
 
 /*
