@@ -13,7 +13,7 @@ class FcmService
     public function __construct()
     {
         // Fetch Firebase Server Key and Project ID from the configuration file
-        $this->firebaseServerKey = config('services.firebase.server_key');
+        $this->firebaseServerKey = config('services.firebase.credentials');
         $this->firebaseProjectId = config('services.firebase.project_id');
     }
 
