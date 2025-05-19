@@ -55,22 +55,22 @@ class UserService extends Service
             DB::beginTransaction();
             $user->update(
                 array_filter([
-                    'name' => $data['name'] ?? null,
-                    'email' => $data['email'] ?? null,
-                    'password' => $data['password'] ?? null,
+                    'name' => $data['name'] ?? $user->name,
+                    'email' => $data['email'] ?? $user->email,
+                    'password' => $data['password'] ?? $user->password,
                 ])
             );
 
-            if ($data['role']) {
+            if (!empty($data['role'])) {
                 $user->assignRole($data['role']);
             }
 
-            if ($data['photo'] || $data['location'] || $data['whatsAppNumber']) {
-                $user->info()->update([
-                    'photo' => isset($data['photo']) ? FileStorage::storeFile($data['photo'], 'Profule', 'img') : null,
-                    'whatsAppNumber' => $data['whatsAppNumber'] ?? null,
-                    'location' => $data['location'] ?? null,
-                ]);
+            if (!empty($data['photo']) || !empty($data['location']) || !empty($data['whatsAppNumber'])) {
+                $user->info()->update(array_filter([
+                    'photo' => isset($data['photo']) ? FileStorage::storeFile($data['photo'], 'Profule', 'img') : $user->info->photo,
+                    'whatsAppNumber' => $data['whatsAppNumber']  ?? $user->info->whatsAppNumber,
+                    'location' => $data['location'] ?? $user->info->location,
+                ]));
             }
             DB::commit();
 

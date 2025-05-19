@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -21,6 +22,8 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $userId = $this->route('user')->id;   //
+
         return [
             'name' => [
                 'nullable',
@@ -31,7 +34,7 @@ class UpdateUserRequest extends FormRequest
                 'nullable',
                 'email:rfc,dns',
                 'max:255',
-                'unique:users,email'
+                Rule::unique('users', 'email')->ignore($userId),
             ],
             'password'  => [
                 'nullable',
@@ -40,7 +43,7 @@ class UpdateUserRequest extends FormRequest
                 'confirmed'
             ],
             'role' => [
-                'required',
+                'nullable',
                 'string',
                 'in:admin,storeManager,customer'
             ],
@@ -60,7 +63,8 @@ class UpdateUserRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:255',
-                'unique:user_infos,whatsAppNumber'
+                Rule::unique('user_infos', 'whatsAppNumber')->ignore($userId, 'user_id'),
+
             ],
         ];
     }
