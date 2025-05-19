@@ -55,6 +55,7 @@ class OrderController extends Controller
             'items.product',
             'items.productVariant',
             'user',
+            'store',
         ]);
 
         return $this->success($order,'Order retrieved successfully',200);
