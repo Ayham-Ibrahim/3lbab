@@ -17,6 +17,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +53,14 @@ Route::get('products/{product}/details', [ProductController::class, 'showWithDet
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:api'])->group(function () {
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard Route
+    |--------------------------------------------------------------------------
+    */
+    Route::get('dashboard', [DashboardController::class, 'index']);
 
     /*
     |--------------------------------------------------------------------------
