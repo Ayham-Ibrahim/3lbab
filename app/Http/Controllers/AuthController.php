@@ -63,7 +63,11 @@ class AuthController extends Controller
         if (!$result) {
             return $this->error('Invalid credentials', 401);
         }
-
+        if ($request->filled('fcm_token')) {
+            $result['user']->update([
+                'fcm_token' => $request->fcm_token
+            ]);
+        }
         // Return a success response with user details and authentication token
         return $this->success(
             [
@@ -86,6 +90,24 @@ class AuthController extends Controller
 
         // Return a success response indicating the user has been logged out
         return $this->success(null, 'User logged out successfully');
+    }
+
+    /**
+     * Summary of updateFcmToken
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function updateFcmToken(Request $request)
+    {
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        auth()->user()->update([
+            'fcm_token' => $request->fcm_token
+        ]);
+
+        return response()->json(['message' => 'FCM Token updated successfully']);
     }
 
 }

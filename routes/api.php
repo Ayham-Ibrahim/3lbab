@@ -52,6 +52,14 @@ Route::get('products/{product}/details', [ProductController::class, 'showWithDet
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:api'])->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update FCM Token Route
+    |--------------------------------------------------------------------------
+    */
+    Route::post('fcm-token', [AuthController::class, 'updateFcmToken']);
+
     /*
     |--------------------------------------------------------------------------
     | Color Routes
