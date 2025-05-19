@@ -113,7 +113,7 @@ class OfferService extends Service
 
         $offerProducts = collect();
 
-        if($offerId){
+        if (!empty($offerId)) {
             $offer = Offer::with('products')->where('store_id',$store->id)->find($offerId);
             if (!$offer) {
                 return [
@@ -137,7 +137,7 @@ class OfferService extends Service
             ->whereNotIn('id',$productIdsInOffers)
             ->get();
         
-        if ($offerId) {
+        if (!empty($offerId)) {
             return [
                 'status' => true,
                 'message' => 'Offer-related and available products retrieved successfully',

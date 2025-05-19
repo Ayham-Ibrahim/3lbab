@@ -91,7 +91,9 @@ class OfferController extends Controller
      */
     public function getOfferFormData(Request $request){
 
-        $result = $this->offerService->getFormData($request->input('offer_id'));
+        
+        $offerId = $request->get('offer');
+        $result = $this->offerService->getFormData($offerId);
 
         if (!$result['status']) {
             return response()->json(['message' => $result['message']], $result['code']);
