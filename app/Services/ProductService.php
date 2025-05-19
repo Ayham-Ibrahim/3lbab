@@ -99,16 +99,14 @@ class ProductService extends Service
      */
     protected function storeProductImages(Product $product, array $images)
     {
-        $productImages = collect($images)->map(function ($imageData) {
-            if (isset($imageData['file'])) {
-                $file = $imageData['file'];
-                if ($file instanceof \Illuminate\Http\UploadedFile) {
-                    return [
-                        'image' => FileStorage::storeFile($file, 'Product', 'img'),
-                    ];
-                }
+        $productImages = collect($images)->map(function ($file) {
+            if ($file instanceof \Illuminate\Http\UploadedFile) {
+                return [
+                    'image' => FileStorage::storeFile($file, 'Product', 'img'),
+                ];
             }
-            Log::error('Invalid image file type:', ['image' => $imageData]);
+
+            Log::error('Invalid image file type:', ['image' => $file]);
             return null;
         })->filter()->toArray();
 
