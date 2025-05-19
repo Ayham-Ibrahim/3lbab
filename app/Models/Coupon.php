@@ -23,6 +23,7 @@ class Coupon extends Model
      */
     protected $casts = [
         'used_count' => 'integer',
+        'max_uses' => 'integer',
     ];
     /**
      * Determine if the coupon is still valid for use.
