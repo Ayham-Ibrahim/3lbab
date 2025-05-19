@@ -17,6 +17,14 @@ class Coupon extends Model
     ];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'used_count' => 'integer',
+    ];
+    /**
      * Determine if the coupon is still valid for use.
      *
      * @return bool
@@ -26,7 +34,7 @@ class Coupon extends Model
         return $this->used_count < $this->max_uses &&
             // check if now is less than expires_at
             (!$this->expires_at || now()->toDateString() <= $this->expires_at);
-        }
+    }
 
     /**
      * Increment the usage count for the coupon.

@@ -39,7 +39,6 @@ class StoreStoreRequest extends BaseFormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:stores,name'
             ],
             'description' => [
                 'required',
