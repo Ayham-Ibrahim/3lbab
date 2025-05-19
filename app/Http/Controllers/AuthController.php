@@ -9,7 +9,7 @@ use App\Http\Requests\Auth\RegisterRequest;
 
 class AuthController extends Controller
 {
-        /**
+    /**
      * The service class handling authentication logic.
      *
      * @var \App\Services\AuthService
@@ -42,7 +42,6 @@ class AuthController extends Controller
         return $this->success(
             [
                 'user' => $result['user'],
-                'token' => $result['token']
             ],
             'User registered successfully'
         );
@@ -72,7 +71,8 @@ class AuthController extends Controller
         return $this->success(
             [
                 'user' => $result['user'],
-                'token' => $result['token']
+                'token' => $result['token'],
+                'is_verified' => $result['is_verified']
             ],
             'User logged in successfully'
         );
@@ -109,5 +109,4 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'FCM Token updated successfully']);
     }
-
 }

@@ -151,10 +151,20 @@ class Store extends Model
     }
 
     /**
-     * the store hase many couponse 
+     * the store hase many couponse
      * @return HasMany<Coupon, Store>
      */
     public function coupons(){
         return $this->hasMany(Coupon::class,'store_id', 'id');
+    }
+
+    /**
+     * Get all of the orders for the Store
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'store_id', 'id');
     }
 }

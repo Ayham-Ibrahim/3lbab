@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\EmailVerificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LogController;
@@ -49,11 +50,20 @@ Route::get('products/{product}/details', [ProductController::class, 'showWithDet
 
 /*
 |--------------------------------------------------------------------------
+| Email Verification OTP Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('email')->group(function () {
+    Route::post('send-verification-otp', [EmailVerificationController::class, 'sendOtp']);
+    Route::post('verify-otp', [EmailVerificationController::class, 'verifyOtp']);
+});
+
+/*
+|--------------------------------------------------------------------------
 | Authenticated Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:api'])->group(function () {
-
 
     /*
     |--------------------------------------------------------------------------
