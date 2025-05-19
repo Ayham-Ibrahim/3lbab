@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Mail\SendResetCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LogController;
@@ -19,6 +19,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,12 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
+});
+
+
+Route::get('/test-mail', function () {
+    Mail::to('ayhamib99@gmail.com')->send(new SendResetCode(123456));
+    return 'Email sent';
 });
 
 /*
