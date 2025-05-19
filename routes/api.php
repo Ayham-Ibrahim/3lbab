@@ -147,7 +147,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('/admins', [ComplaintController::class, 'getAdmins']);
         Route::get('/', [ComplaintController::class, 'index']);
         Route::get('/my', [ComplaintController::class, 'managerComplaints']);
-        Route::patch('/{complation}/is-readed', [ComplaintController::class, 'markAsRead']);
+        Route::patch('/{id}/is-readed', [ComplaintController::class, 'markAsRead']);
         Route::delete('/', [ComplaintController::class, 'destroy']);
     });
 

@@ -133,11 +133,11 @@ class ComplaintController extends Controller
      * @param Complaint $complaint The complaint instance (Route Model Binding)
      * @return \Illuminate\Http\JsonResponse
      */
-    public function markAsRead(Complaint $complaint): JsonResponse
+    public function markAsRead($id): JsonResponse
     {
+        $complaint = Complaint::where('id',$id)->first();
         $managerId = Auth::id();
-
-        if ($complaint->manager_id !== $managerId) {
+        if ($complaint->manager_id != $managerId) {
             return $this->error('Unauthorized. This complaint is not assigned to you.', 403);
         }
 
