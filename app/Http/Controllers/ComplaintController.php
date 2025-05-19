@@ -50,6 +50,7 @@ class ComplaintController extends Controller
      */
     public function getAdmins()
     {
+        
         $users = User::role(['admin', 'storeManager'])
             ->with(['store' => function ($query) {
                 $query->select('id', 'manager_id', 'name as store_name');
@@ -59,15 +60,20 @@ class ComplaintController extends Controller
                     ->orWhereHas('roles', fn($q) => $q->where('name', 'admin'));
             })
             ->select('id', 'name')
-            ->get()
-            ->map(function ($user) {
-                if ($user->store) {
-                    $data['store_id'] = $user->store->id;
-                    $data['store_name'] = $user->store->store_name;
-                }
+            ->get();
+            // ->map(function ($user) {
+            //     $data = [
+            //         'id' => $user->id,
+            //         'name' => $user->name,
+            //     ];
+            //     if ($user->store) {
+            //         $data['store_id'] = $user->store->id;
+            //         $data['store_name'] = $user->store->store_name;
+            //     }
 
-                return $data;
-            });
+            //     return $data;
+            // });
+            
 
         return $this->success($users);
     }
