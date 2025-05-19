@@ -34,4 +34,16 @@ class Offer extends Model
     {
         return $this->belongsTo(Store::class);
     }
+
+    
+    /**
+     * Get the full URL for the offer image
+     *
+     * @return string|null
+     */
+    public function getImageAttribute()
+    {
+        return $this->attributes['image'] ? asset($this->attributes['image']) : null;
+    }
+
 }

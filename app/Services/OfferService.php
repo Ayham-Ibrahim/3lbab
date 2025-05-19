@@ -33,11 +33,11 @@ class OfferService extends Service
                 ]);
             }
         }
-        try {
+        // try {
             DB::beginTransaction();
             $offer =  Offer::create([
-                'image'               => FileStorage::storeFile($data['image'], 'Category', 'img'),
-                'description'               => $data['description'],
+                'image'               => FileStorage::storeFile($data['image'], 'Offer', 'img'),
+                'description'         => $data['description'],
                 'store_id'            => $data['store_id'],
                 'discount_percentage' => $data['discount_percentage'],
                 'starts_at'           => $data['starts_at'],
@@ -50,14 +50,14 @@ class OfferService extends Service
 
             DB::commit();
             return $offer;
-        } catch (\Throwable $th) {
-            Log::error($th);
-            DB::rollBack();
-            if ($th instanceof HttpResponseException) {
-                throw $th;
-            }
-            $this->throwExceptionJson();
-        }
+        // } catch (\Throwable $th) {
+        //     Log::error($th);
+        //     DB::rollBack();
+        //     if ($th instanceof HttpResponseException) {
+        //         throw $th;
+        //     }
+        //     $this->throwExceptionJson();
+        // }
     }
 
     /**
@@ -71,8 +71,8 @@ class OfferService extends Service
         try {
             DB::beginTransaction();
             $offer->update(array_filter([
-                'image'               => FileStorage::storeFile($data['image'] ?? null, 'Category', 'img'),
-                'description'               => $data['description'] ?? $offer->description,
+                'image'               => FileStorage::fileExists($data['image'] ?? null, $offer->image, 'Category', 'img'),
+                'description'         => $data['description'] ?? $offer->description,
                 'store_id'            => $data['store_id'] ?? $offer->store_id,
                 'discount_percentage' => $data['discount_percentage'] ?? $offer->discount_percentage,
                 'starts_at'           => $data['starts_at'] ?? $offer->starts_at,
