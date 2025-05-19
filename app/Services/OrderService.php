@@ -71,7 +71,7 @@ class OrderService extends Service {
         try {
             foreach ($groupedItems as $storeId => $items) {
                 $totalBeforeDiscount = $items->sum(fn($item) => $item->quantity * $item->product->price);
-
+                $discount = 0; 
                 // add the coupon just for the store which has the coupon
                 $validCouponForThisStore = $coupon && $coupon->store_id === $storeId;
                 if ($coupon && !$validCouponForThisStore) {
