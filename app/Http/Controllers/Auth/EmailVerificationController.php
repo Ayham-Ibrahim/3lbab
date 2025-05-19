@@ -72,7 +72,7 @@ class EmailVerificationController extends Controller
             if ($result['success']) {
                 return $this->success(null, $result['message'], $result['status_code']);
             }
-            return $this->error($result['message'], [], $result['status_code']);
+            return $this->error($result['message'], 500, $result['status_code']);
         }
     }
 }
