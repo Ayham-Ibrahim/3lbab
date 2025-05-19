@@ -59,7 +59,8 @@ class OrderService extends Service {
         if ($couponCode) {
             $coupon = Coupon::where('code', $couponCode)->first();
             if (!$coupon || !$coupon->isValid()) {
-                throw new \Exception('Invalid or expired coupon.');
+                // throw new \Exception('Invalid or expired coupon.');
+                $this->throwExceptionJson('Invalid or expired coupon.',422);
             }
         }
 
