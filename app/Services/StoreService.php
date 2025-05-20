@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Models\Store;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Facades\Auth;
+use App\Services\FcmService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreService extends Service
 {
@@ -67,6 +69,18 @@ class StoreService extends Service
             }
 
             DB::commit();
+
+            $manager = User::where('id', $store->manager_id)->first();
+
+            if ($manager && $manager->fcm_token) {
+                $fcmService = new FcmService();
+                $success = $fcmService->sendNotification($manager,'تم إنشاء متجر جديد',"تم إنشاء المتجر: {$store->name}",$manager->fcm_token,['type' => 'store_created', 'store_id' => $store->id]);
+                if ($success) {
+                    Log::info("تم إرسال الإشعار إلى المستخدم {$manager->id}");
+                } else {
+                    Log::warning("فشل إرسال الإشعار إلى المستخدم {$manager->id}");
+                }
+            }
 
             return $store;
         // } catch (\Throwable $th) {

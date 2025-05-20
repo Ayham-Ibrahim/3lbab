@@ -2,37 +2,44 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Google\Auth\Credentials\ServiceAccountCredentials;
 
 class FcmService
 {
-    protected $firebaseServerKey;
     protected $firebaseProjectId;
+    protected $credentialsPath;
 
-    public function __construct()
+    /**
+     * Prepare Firebase settings based on user role.
+     */
+    protected function initConfig(User $user)
     {
-        // Fetch Firebase Server Key and Project ID from the configuration file
-        $this->firebaseServerKey = config('services.firebase.credentials');
-        $this->firebaseProjectId = config('services.firebase.project_id');
+        if ($user->hasRole('customer')) {
+            $this->firebaseProjectId = config('services.firebase_customer.project_id');
+            $this->credentialsPath = storage_path('app/firebase-adminsdk-customer.json');
+        } else {
+            $this->firebaseProjectId = config('services.firebase_admin.project_id');
+            $this->credentialsPath = storage_path('app/firebase-adminsdk-admin.json');
+        }
     }
 
     /**
-     * Send a notification to Firebase.
-     *
+     * send Notification
+     * @param \App\Models\User $user
      * @param string $title
      * @param string $body
-     * @param array $tokens
-     * @param array $data (optional)
-     * @return \Illuminate\Http\Client\Response
+     * @param mixed $tokens
+     * @param array $data
+     * @return bool
      */
-    public function sendNotification($title, $body, $tokens, $data = [])
+    public function sendNotification(User $user, string $title, string $body, $tokens, array $data = [])
     {
-        // Load Service Account credentials from JSON file
-        $credentialsPath = storage_path('app/firebase-adminsdk.json');
+        $this->initConfig($user);
         $credentials = new ServiceAccountCredentials(
             'https://www.googleapis.com/auth/firebase.messaging',
-            $credentialsPath
+            $this->credentialsPath
         );
 
         // Get an OAuth 2.0 token
@@ -73,9 +80,11 @@ class FcmService
         ];
 
         // Send the request to Firebase with the OAuth token in the headers
-        return Http::withHeaders([
+        $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $authToken,
             'Content-Type' => 'application/json',
         ])->post($url, $payload);
+        return $response->successful();
+
     }
 }

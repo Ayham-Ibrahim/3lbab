@@ -35,9 +35,13 @@ return [
         ],
     ],
 
-    'firebase' => [
-        'credentials' => storage_path('app/firebase-adminsdk.json'),
-        'project_id' => env('FIREBASE_PROJECT_ID'),
+    // 'credentials' => storage_path('app/firebase-adminsdk.json'),
+    'firebase_admin' => [
+        'project_id' => env('FIREBASE_ADMIN_PROJECT_ID',"albab-dashboard"),
+    ],
+
+    'firebase_customer' => [
+        'project_id' => env('FIREBASE_CUSTOMER_PROJECT_ID',"albab-customer-721d3"),
     ],
 
 ];
