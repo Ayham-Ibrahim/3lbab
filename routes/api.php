@@ -1,6 +1,7 @@
 <?php
 
 use App\Mail\SendResetCode;
+use App\Services\FcmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LogController;
@@ -250,3 +251,33 @@ Route::get('all-offers', [OfferController::class, 'allOffers']);
 */
 Route::delete('/reset-log', [LogController::class, 'resetLog']);
 Route::get('/logs', [LogController::class, 'getLog']);
+
+
+
+Route::get('/test-fcm', function () {
+    $user = User::find(5); 
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    $token = $user->fcm_token;
+
+    if (!$token) {
+        return response()->json(['message' => 'User has no device token'], 422);
+    }
+
+    $service = new FcmService();
+
+    $success = $service->sendNotification(
+        $user,
+        'Test Notification',
+        'This is a test message from Laravel',
+        $token,
+        ['custom_key' => 'custom_value']
+    );
+
+    return response()->json([
+        'message' => $success ? 'Notification sent successfully' : 'Notification failed',
+    ]);
+});
