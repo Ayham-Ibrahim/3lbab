@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Store;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Services\CategoryService;
+use Illuminate\Support\Facades\Auth;
+use App\Jobs\SendCategoryNotificationJob;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
-use App\Models\Store;
-use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
@@ -128,6 +129,7 @@ class CategoryController extends Controller
     public function toggleAvailable(Category $category)
     {
         $category->update(['is_available' => !$category->is_available]);
+        SendCategoryNotificationJob::dispatch($category);
         return $this->success($category, 'The Category has been successfully Toggled');
     }
 

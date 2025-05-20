@@ -3,15 +3,16 @@
 namespace App\Services;
 
 use App\Models\Cart;
+use App\Models\User;
 use App\Models\Order;
 use App\Models\Store;
 use App\Models\Coupon;
 use App\Services\Service;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 
 class OrderService extends Service {
@@ -117,6 +118,23 @@ class OrderService extends Service {
             }
 
             DB::commit();
+            $user = User::where('id', $userId)->first();
+
+            if ($user  && $user->fcm_token) {
+                $fcmService = new FcmService();
+                $fcmService->sendNotification(
+                    $user,
+                    'تم إنشاء طلب جديد',
+                    'شكراً لتسوقك معنا، تم تقديم طلبك بنجاح!',
+                    $user->fcm_token,
+                    [
+                        'order_count' => (string) count($orders),
+                        'status' => 'pending'
+                    ]
+                );
+            } else {
+                Log::warning("User ID {$user->id} has no FCM token.");
+            }
             return $orders;
         } catch (\Throwable $th) {
             Log::error($th);
@@ -163,6 +181,24 @@ class OrderService extends Service {
     {
         try {
             $order->update(['status' => $data['status']]);
+            $user = User::where('id', $order->user_id)->first();
+
+            if ($user  && $user->fcm_token) {
+                $fcmService = new FcmService();
+                $success = $fcmService->sendNotification($user,
+                'تم تحديث حالة الطلب',
+                'طلبك رقم ' . $order->code . ' تم تغييره إلى ' . $order->status,
+                $user->fcm_token,
+                [
+                    'order_id' => $order->id,
+                    'status' => $order->status
+                ]);
+                if ($success) {
+                    Log::info("تم إرسال الإشعار إلى المستخدم {$user->id}");
+                } else {
+                    Log::warning("فشل إرسال الإشعار إلى المستخدم {$user->id}");
+                }
+            }
             return $order;
         } catch (\Throwable $th) {
             Log::error($th);

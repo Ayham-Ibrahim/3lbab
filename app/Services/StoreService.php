@@ -45,7 +45,7 @@ class StoreService extends Service
      */
     public function storeStore(array $data)
     {
-        // try {
+        try {
             DB::beginTransaction();
 
             $store = Store::create([
@@ -83,14 +83,14 @@ class StoreService extends Service
             }
 
             return $store;
-        // } catch (\Throwable $th) {
-        //     DB::rollBack();
-        //     Log::error($th);
-        //     if ($th instanceof HttpResponseException) {
-        //         throw $th;
-        //     }
-        //     $this->throwExceptionJson();
-        // }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error($th);
+            if ($th instanceof HttpResponseException) {
+                throw $th;
+            }
+            $this->throwExceptionJson();
+        }
     }
 
     /**
