@@ -77,34 +77,6 @@ Route::prefix('email')->group(function () {
 */
 Route::middleware(['auth:api'])->group(function () {
 
-    Route::get('/test-fcm', function () {
-        $user = User::find(5); 
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-        $token = $user->fcm_token;
-
-        if (!$token) {
-            return response()->json(['message' => 'User has no device token'], 422);
-        }
-
-        $service = new FcmService();
-
-        $success = $service->sendNotification(
-            $user,
-            'Test Notification',
-            'This is a test message from Laravel',
-            $token,
-            ['custom_key' => 'custom_value']
-        );
-
-        return response()->json([
-            'message' => $success ? 'Notification sent successfully' : 'Notification failed',
-        ]);
-    });
-
     /*
     |--------------------------------------------------------------------------
     | Dashboard Route
