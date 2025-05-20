@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Google\Auth\Credentials\ServiceAccountCredentials;
 
@@ -16,6 +17,7 @@ class FcmService
      */
     protected function initConfig(User $user)
     {
+        Log::debug('User roles:', $user->getRoleNames()->toArray());
         if ($user->hasRole('customer')) {
             $this->firebaseProjectId = config('services.firebase_customer.project_id');
             $this->credentialsPath = storage_path('app/firebase-adminsdk-customer.json');
@@ -84,6 +86,9 @@ class FcmService
             'Authorization' => 'Bearer ' . $authToken,
             'Content-Type' => 'application/json',
         ])->post($url, $payload);
+
+        Log::debug('FCM Response', ['body' => $response->body(), 'status' => $response->status()]);
+
         return $response->successful();
 
     }
