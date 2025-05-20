@@ -227,6 +227,8 @@ Route::middleware(['auth:api'])->group(function () {
 
 });
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Public Read-only Routes
@@ -237,6 +239,8 @@ Route::apiResource('sizes', SizeController::class)->only(['index', 'show']);
 Route::apiResource('stores', StoreController::class)->only(['index', 'show']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
 Route::apiResource('products', ProductController::class)->only(['index', 'show']);
+// show all offers
+Route::get('all-offers', [OfferController::class, 'allOffers']);
 
 
 /*
