@@ -54,11 +54,11 @@ class FcmService
         $payload = [
             'message' => [
                 'token' => $tokens,  // Device token(s)
-                'data' => array_merge($data, [
+                'data' => array_map('strval', array_merge($data, [
                     'title' => $title,
                     'body' => $body,
                     'click_action' => "FLUTTER_NOTIFICATION_CLICK"
-                ]),
+                ])),
                 'notification' => [
                     'title' => $title,
                     'body' => $body,
