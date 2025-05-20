@@ -52,7 +52,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         $order->load([
-            'items.product',
+            'items.product.images',
             'items.productVariant',
             'user',
             'store',

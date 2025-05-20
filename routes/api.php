@@ -19,6 +19,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\ForgetPasswordController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 
 /*
@@ -33,11 +34,13 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 });
 
-
-Route::get('/test-mail', function () {
-    Mail::to('ayhamib99@gmail.com')->send(new SendResetCode(123456));
-    return 'Email sent';
-});
+/*
+|--------------------------------------------------------------------------
+| Forget Password Routes
+|--------------------------------------------------------------------------
+*/
+Route::post('forgot-password', [ForgetPasswordController::class, 'forgotPassword']);
+Route::post('reset-password', [ForgetPasswordController::class, 'verifyResetCode']);
 
 /*
 |--------------------------------------------------------------------------
@@ -224,6 +227,8 @@ Route::middleware(['auth:api'])->group(function () {
 
 });
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Public Read-only Routes
@@ -234,6 +239,8 @@ Route::apiResource('sizes', SizeController::class)->only(['index', 'show']);
 Route::apiResource('stores', StoreController::class)->only(['index', 'show']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
 Route::apiResource('products', ProductController::class)->only(['index', 'show']);
+// show all offers
+Route::get('all-offers', [OfferController::class, 'allOffers']);
 
 
 /*

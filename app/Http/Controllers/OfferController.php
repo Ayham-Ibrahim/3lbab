@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Offer;
 use Illuminate\Http\Request;
 use App\Services\OfferService;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Offer\StoreOfferRequest;
 use App\Http\Requests\Offer\UpdateOfferRequest;
 
@@ -35,7 +36,9 @@ class OfferController extends Controller
     public function index()
     {
         return $this->success(
-            Offer::latest()->get(),
+            Offer::whereHas('store', function ($q) {
+                $q->where('manager_id', Auth::id());
+            })->get(),
         'Offers retrieved successfully',200);
     }
 
@@ -101,6 +104,18 @@ class OfferController extends Controller
         return $this->success(
             $result['data'],
         'data retrieved successfully',200);
+    }
+
+    /**
+     * return all offers for customers 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function allOffers(){
+        return $this->success(
+            Offer::latest()->get(),
+            'All offers retrieved successfully',
+            200
+        );
     }
 
 
