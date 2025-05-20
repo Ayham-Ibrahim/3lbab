@@ -29,11 +29,13 @@ class Order extends Model
      */
     protected $casts = [
         'total_price' => 'float',
+        'user_id' => 'integer',
+        'store_id' => 'integer',
     ];
 
     /**
      * Get the user that owns the order.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, Order>
      */
     public function user()
@@ -43,7 +45,7 @@ class Order extends Model
 
     /**
      * Get all the items in the order.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<OrderItem, Order>
      */
     public function items()

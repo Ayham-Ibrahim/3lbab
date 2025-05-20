@@ -83,7 +83,16 @@ class EmailVerificationService extends Service
         if ($cachedOtp === $data['otp']) {
             $user->markEmailAsVerified();
             Cache::forget($otpKey);
-            return ['success' => true, 'message' => 'تم التحقق من البريد الإلكتروني بنجاح.', 'status_code' => 200];
+            return [
+                'data' => [
+                    'user'        => $user,
+                    'is_verified' => true,
+                    'token'       => $user->createToken('auth_token')->plainTextToken
+                ],
+                'success' => true,
+                'message' => 'تم التحقق من البريد الإلكتروني بنجاح.',
+                'status_code' => 200
+            ];
         } else {
             return ['success' => false, 'message' => 'رمز التحقق غير صحيح.', 'status_code' => 400];
         }

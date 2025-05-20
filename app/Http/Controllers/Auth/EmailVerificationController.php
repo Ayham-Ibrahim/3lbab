@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\SendEmailVerificationOtpRequest;
 use App\Http\Requests\Auth\VerifyEmailOtpRequest;
 use App\Services\EmailVerificationService;
+
 /**
  * Handles HTTP requests related to email verification via OTP.
  * It orchestrates the process by using EmailVerificationService.
@@ -43,14 +44,11 @@ class EmailVerificationController extends Controller
     {
         $result = $this->emailVerificationService->sendOtp($request->validated());
 
-        // Assuming 'success' and 'error' methods exist in your base Controller
-        if (method_exists($this, 'success')) {
-            if ($result['success']) {
-                return $this->success(null, $result['message'], $result['status_code']);
-            }
-            // Pass an empty array for data if the error method expects it
-            return $this->error($result['message'], [], $result['status_code']);
+        if ($result['success']) {
+            return $this->success(null, $result['message'], $result['status_code']);
         }
+        // Pass an empty array for data if the error method expects it
+        return $this->error($result['message'], [], $result['status_code']);
     }
 
     /**
@@ -67,12 +65,9 @@ class EmailVerificationController extends Controller
     public function verifyOtp(VerifyEmailOtpRequest $request)
     {
         $result = $this->emailVerificationService->verifyOtp($request->validated());
-
-        if (method_exists($this, 'success')) {
-            if ($result['success']) {
-                return $this->success(null, $result['message'], $result['status_code']);
-            }
-            return $this->error($result['message'], 500, $result['status_code']);
+        if ($result['success']) {
+            return $this->success($result['data'], $result['message'], $result['status_code']);
         }
+        return $this->error($result['message'], 500, $result['status_code']);
     }
 }

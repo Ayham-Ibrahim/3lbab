@@ -14,7 +14,21 @@ class Offer extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'description','store_id','discount_percentage','image','starts_at','ends_at',
+        'description',
+        'store_id',
+        'discount_percentage',
+        'image',
+        'starts_at',
+        'ends_at',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'store_id' => 'integer',
     ];
 
     /**
@@ -35,7 +49,7 @@ class Offer extends Model
         return $this->belongsTo(Store::class);
     }
 
-    
+
     /**
      * Get the full URL for the offer image
      *
@@ -45,5 +59,4 @@ class Offer extends Model
     {
         return $this->attributes['image'] ? asset($this->attributes['image']) : null;
     }
-
 }
