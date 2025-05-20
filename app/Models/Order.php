@@ -20,6 +20,8 @@ class Order extends Model
         'code',
         'total_price',
         'status',
+        'discount_amount',
+        'coupon_id'
     ];
 
     /**
@@ -29,8 +31,10 @@ class Order extends Model
      */
     protected $casts = [
         'total_price' => 'float',
+        'discount_amount' => 'float',
         'user_id' => 'integer',
         'store_id' => 'integer',
+        'coupon_id' => 'integer',
     ];
 
     /**

@@ -46,6 +46,7 @@ class UserContoller extends Controller
             User::with('info:id,user_id,photo')
                 ->select('id', 'name', 'is_available')
                 ->available($is_available)
+                ->byName($request->input('search'))
                 ->paginate(),
             'Users retrieved successfully'
         );

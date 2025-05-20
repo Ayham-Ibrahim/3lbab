@@ -111,6 +111,20 @@ class User extends Authenticatable
     }
 
     /**
+     * Scope a query to search users by name.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  string|null  $name (Optional) Search term for user name. If null, returns all.
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByName(Builder $query, ?string $name = null): Builder
+    {
+        return $query->when($name, function ($q) use ($name) {
+            $q->where('name', 'like', '%' . $name . '%');
+        });
+    }
+
+    /**
      * Get the store associated with the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne

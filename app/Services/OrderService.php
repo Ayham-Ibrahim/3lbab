@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Store;
 use App\Models\Coupon;
 use App\Services\Service;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 class OrderService extends Service {
 
     /**
-     * list orders that belongs to specifiec store 
+     * list orders that belongs to specifiec store
      * @param mixed $status
      * @return \Illuminate\Database\Eloquent\Collection<int, Order>|null
      */
@@ -28,7 +29,7 @@ class OrderService extends Service {
         }
         try {
             return Order::with([
-                    'store:id,name,logo' 
+                    'store:id,name,logo'
                 ])->select('id','user_id','code','total_price','coupon_id','discount_amount','status','store_id','created_at')
                 ->where('store_id',$store->id)
                 ->filterWithStatus($status)
@@ -71,7 +72,7 @@ class OrderService extends Service {
         try {
             foreach ($groupedItems as $storeId => $items) {
                 $totalBeforeDiscount = $items->sum(fn($item) => $item->quantity * $item->product->price);
-                $discount = 0; 
+                $discount = 0;
                 // add the coupon just for the store which has the coupon
                 $validCouponForThisStore = $coupon && $coupon->store_id === $storeId;
                 if ($coupon && !$validCouponForThisStore) {
@@ -107,7 +108,7 @@ class OrderService extends Service {
                         'quantity' => $item->quantity,
                         'price' => $item->product->price,
                     ]);
-                    $item->delete(); 
+                    $item->delete();
                 }
 
                 if ($validCouponForThisStore) {
@@ -136,7 +137,7 @@ class OrderService extends Service {
     {
         try {
             return Order::with([
-                    'store:id,name,logo' 
+                    'store:id,name,logo'
                 ])->where('user_id', $userId)
                 ->filterWithStatus($status)
                 ->without('items')
@@ -171,7 +172,7 @@ class OrderService extends Service {
             }
             $this->throwExceptionJson();
         }
- 
+
     }
 
     /**
