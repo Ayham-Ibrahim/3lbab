@@ -87,7 +87,7 @@ Route::middleware(['auth:api'])->group(function () {
     | Update FCM Token Route
     |--------------------------------------------------------------------------
     */
-    Route::post('fcm-token', [AuthController::class, 'updateFcmToken']);
+    Route::patch('fcm-token', [AuthController::class, 'updateFcmToken']);
 
     /*
     |--------------------------------------------------------------------------
