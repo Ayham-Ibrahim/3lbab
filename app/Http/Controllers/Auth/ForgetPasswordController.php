@@ -29,8 +29,8 @@ class ForgetPasswordController extends Controller
         $data = $request->validated();
         $user = User::where('email', $data['email'])->first();
 
-        if ($user->hasVerifiedEmail()) {
-            return ['success' => true, 'message' => 'البريد الإلكتروني مُحقق بالفعل.', 'status_code' => 200];
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
         }
 
         $otp = (string)random_int(10000, 99999);
