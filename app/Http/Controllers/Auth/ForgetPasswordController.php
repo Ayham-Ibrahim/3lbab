@@ -39,8 +39,8 @@ class ForgetPasswordController extends Controller
         Cache::put($cacheKey, $otp, now()->addMinutes(10));
 
         try {
-        Mail::to($request->email)->send(new SendResetCode($otp, $user->name));
-            return ['success' => true, 'message' => 'تم إرسال رمز التحقق إلى بريدك الإلكتروني.', 'status_code' => 200];
+            Mail::to($request->email)->send(new SendResetCode($otp, $user->name));
+            return response()->json(['message' => 'تم إرسال رمز التحقق إلى بريدك الإلكتروني.'], 404);
         } catch (Exception $e) {
             Log::error('Failed to send OTP email for user ID ' . $user->id . ': ' . $e->getMessage());
             $this->throwExceptionJson();
