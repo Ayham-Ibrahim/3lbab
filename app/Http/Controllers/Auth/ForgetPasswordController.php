@@ -63,7 +63,7 @@ class ForgetPasswordController extends Controller
             return response()->json(['message' => 'انتهت صلاحية رمز التحقق'], 422);
         }
 
-        if ($data['code'] != $cachedCode) {
+        if ($data['otp'] != $cachedCode) {
             return response()->json(['message' => 'الرمز غير صحيح'], 422);
         }
 
