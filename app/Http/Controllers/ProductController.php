@@ -206,8 +206,15 @@ class ProductController extends Controller
             'variants.size',
             'variants.color',
             'store',
-            'category'
+            'category',
+            'currentOffer',
         ])->findOrFail($id);
+
+        $offer = $product->currentOffer->first();
+
+        $product->final_price = $offer
+            ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
+            : $product->price;
 
         return $this->success($product, 'Product retrieved successfully');
     }
