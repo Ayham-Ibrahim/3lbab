@@ -40,7 +40,7 @@ class ForgetPasswordController extends Controller
 
         try {
             Mail::to($request->email)->send(new SendResetCode($otp, $user->name));
-            return response()->json(['message' => 'تم إرسال رمز التحقق إلى بريدك الإلكتروني.'], 404);
+            return response()->json(['message' => 'تم إرسال رمز التحقق إلى بريدك الإلكتروني.'], 200);
         } catch (Exception $e) {
             Log::error('Failed to send OTP email for user ID ' . $user->id . ': ' . $e->getMessage());
             $this->throwExceptionJson();
