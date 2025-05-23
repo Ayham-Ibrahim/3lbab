@@ -53,6 +53,7 @@ class OrderController extends Controller
     {
         $order->load([
             'items.product.images',
+            'items.product.currentOffer',
             'items.productVariant',
             'user',
             'store',
