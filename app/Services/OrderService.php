@@ -155,7 +155,9 @@ class OrderService extends Service {
     {
         try {
             return Order::with([
-                    'store:id,name,logo'
+                    'store:id,name,logo',
+                    'items.product.currentOffer',
+
                 ])->where('user_id', $userId)
                 ->filterWithStatus($status)
                 ->without('items')
