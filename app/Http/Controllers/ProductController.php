@@ -219,10 +219,16 @@ class ProductController extends Controller
         ])->findOrFail($id);
 
         $offer = $product->currentOffer->first();
+        $user = Auth::user();
 
         $product->final_price = $offer
             ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
             : $product->price;
+
+        $product->is_favourite = $user
+            ? $product->favourites->contains('user_id', $user->id)
+            : false;
+
 
         return $this->success($product, 'Product retrieved successfully');
     }
