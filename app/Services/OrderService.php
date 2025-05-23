@@ -154,15 +154,15 @@ class OrderService extends Service {
     public function getUserOrders(int $userId , ?string $status = null)
     {
         try {
-            return Order::with([
+                $orders = Order::with([
                     'store:id,name,logo',
                     'items.product.currentOffer',
 
                 ])->where('user_id', $userId)
                 ->filterWithStatus($status)
-                ->without('items')
                 ->latest()
                 ->get();
+                $orders->each->makeHidden('items');
         } catch (\Throwable $th) {
             Log::error($th);
             DB::rollBack();
