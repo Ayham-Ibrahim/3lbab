@@ -60,14 +60,14 @@ class ProductController extends Controller
         $sortByFavourites = filter_var($request->input('sort_by_favourites'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
         $search = $request->input('search');
-        $data = Product::with(['store:id,name', 'images', 'category:id,name','currentOffer'])
-                ->withCount('favourites')
-                ->available($is_available)
-                ->store(($request->input('store')))
-                ->category(($request->input('category')))
-                ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
-                ->sortByMostFavourited($sortByFavourites)
-                ->paginate();
+        $data = Product::with(['store:id,name', 'images', 'category:id,name', 'currentOffer'])
+            ->withCount('favourites')
+            ->available($is_available)
+            ->store(($request->input('store')))
+            ->category(($request->input('category')))
+            ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
+            ->sortByMostFavourited($sortByFavourites)
+            ->paginate();
         $data->getCollection()->transform(function ($product) {
             $offer = $product->currentOffer->first();
             $product->final_price = $offer
@@ -97,28 +97,29 @@ class ProductController extends Controller
 
         $search = $request->input('search');
 
-        
-        $data =  Product::with(['store:id,name', 'images', 'category:id,name','currentOffer'])
-                ->withCount('favourites')
-                ->whereHas('store', function ($q) {
-                    $q->where('manager_id', Auth::id());
-                })
-                ->available($is_available)
-                ->store(($request->input('store')))
-                ->category(($request->input('category')))
-                ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
-                ->sortByMostFavourited($sortByFavourites)
-                ->paginate();
-        
+
+        $data =  Product::with(['store:id,name', 'images', 'category:id,name', 'currentOffer'])
+            ->withCount('favourites')
+            ->whereHas('store', function ($q) {
+                $q->where('manager_id', Auth::id());
+            })
+            ->available($is_available)
+            ->store(($request->input('store')))
+            ->category(($request->input('category')))
+            ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
+            ->sortByMostFavourited($sortByFavourites)
+            ->paginate();
+
         $data->getCollection()->transform(function ($product) {
             $offer = $product->currentOffer->first();
             $product->final_price = $offer
                 ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
                 : $product->price;
             return $product;
-        });        
-        
-        return $this->paginate($data,
+        });
+
+        return $this->paginate(
+            $data,
             'Products retrieved successfully'
         );
     }
@@ -139,11 +140,18 @@ class ProductController extends Controller
             ->searchByName($request->input('search'))
             ->paginate();
 
-        $products->getCollection()->transform(function ($product) {
+
+        $user = Auth::user();
+        $products->getCollection()->transform(function ($product) use ($user) {
             $offer = $product->currentOffer->first();
             $product->final_price = $offer
                 ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
                 : $product->price;
+
+            $product->is_favourite = $user
+                ? $product->favourites->contains('user_id', $user->id)
+                : false;
+
             return $product;
         });
 
