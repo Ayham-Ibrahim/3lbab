@@ -162,7 +162,6 @@ class OrderService extends Service {
                 ->filterWithStatus($status)
                 ->latest()
                 ->get();
-                $orders->each->makeHidden('items');
         } catch (\Throwable $th) {
             Log::error($th);
             DB::rollBack();
