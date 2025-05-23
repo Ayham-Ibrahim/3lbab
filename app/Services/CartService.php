@@ -3,10 +3,11 @@
 namespace App\Services;
 
 use App\Models\Cart;
+use App\Models\User;
 use App\Models\CartItem;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class CartService extends Service // Assuming Service class exists
 {
@@ -28,13 +29,28 @@ class CartService extends Service // Assuming Service class exists
     public function getUserCart(int $userId): Cart
     {
         $cart = Cart::with([
-            'items.product.images',
-            'items.productVariant.color',
-            'items.productVariant.size'
-        ])
-            ->firstOrCreate(['user_id' => $userId]);
+        'items.product.images',
+        'items.product.currentOffer',
+        'items.productVariant.color',
+        'items.productVariant.size'
+    ])->firstOrCreate(['user_id' => $userId]);
 
-        return $cart;
+    // Apply offer pricing
+    $cart->items->transform(function ($item) {
+        $product = $item->product;
+        $offer = $product->currentOffer->first(); // eager loaded
+
+        $finalPrice = $offer
+            ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
+            : $product->price;
+
+        $item->final_price = $finalPrice;
+        $item->total_price = $finalPrice * $item->quantity;
+
+        return $item;
+    });
+
+    return $cart;
     }
 
     /**
@@ -71,7 +87,20 @@ class CartService extends Service // Assuming Service class exists
                 ]);
             }
             DB::commit();
-
+            $user =  User::where('id', $userId)->first();
+            if ($user && $user->fcm_token) {
+                $fcmService = new FcmService();
+                $fcmService->sendNotification(
+                    $user,
+                    'تمت إضافة منتج للسلة',
+                    'تمت إضافة منتج جديد إلى سلتك بنجاح يمكنك مراجعة قسم المشتريات.',
+                    $user->fcm_token,
+                    [
+                        'type' => 'cart',
+                        'cart_items_count' => $cart->items()->count(),
+                    ]
+                );
+            }
             return $cart->load([
                 'items.product.images',
                 'items.productVariant.color',

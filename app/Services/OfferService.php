@@ -9,6 +9,7 @@ use App\Services\FileStorage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Jobs\SendNewOfferNotificationJob;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
@@ -35,7 +36,7 @@ class OfferService extends Service
                 ]);
             }
         }
-        // try {
+        try {
             DB::beginTransaction();
             $offer =  Offer::create([
                 'image'               => FileStorage::storeFile($data['image'], 'Offer', 'img'),
@@ -51,15 +52,16 @@ class OfferService extends Service
             }
 
             DB::commit();
+            SendNewOfferNotificationJob::dispatch($offer);
             return $offer;
-        // } catch (\Throwable $th) {
-        //     Log::error($th);
-        //     DB::rollBack();
-        //     if ($th instanceof HttpResponseException) {
-        //         throw $th;
-        //     }
-        //     $this->throwExceptionJson();
-        // }
+        } catch (\Throwable $th) {
+            Log::error($th);
+            DB::rollBack();
+            if ($th instanceof HttpResponseException) {
+                throw $th;
+            }
+            $this->throwExceptionJson();
+        }
     }
 
     /**
