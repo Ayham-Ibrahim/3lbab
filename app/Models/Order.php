@@ -38,6 +38,13 @@ class Order extends Model
     ];
 
     /**
+     * Summary of appends
+     * @var array
+     */
+    protected $appends = ['total_price_with_offer'];
+
+
+    /**
      * Get the user that owns the order.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, Order>
