@@ -58,6 +58,19 @@ class OrderController extends Controller
             'user',
             'store',
         ]);
+        $order->items->transform(function ($item) {
+        $product = $item->product;
+        $offer = $product->currentOffer->first();
+
+        $finalPrice = $offer
+            ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
+            : $product->price;
+
+        $item->final_price = $finalPrice;
+        $item->total_price_with_offer = $finalPrice * $item->quantity;
+
+        return $item;
+    });
 
         return $this->success($order,'Order retrieved successfully',200);
     }
