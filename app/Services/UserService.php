@@ -29,7 +29,7 @@ class UserService extends Service
 
             $user->assignRole($data['role']);
 
-            if ($data['photo'] || $data['location'] || $data['whatsAppNumber']) {
+            if (!empty($data['photo']) || !empty($data['location']) || !empty($data['whatsAppNumber'])) {
                 $user->info()->create([
                     'photo' => isset($data['photo']) ? FileStorage::storeFile($data['photo'], 'Profule', 'img') : null,
                     'whatsAppNumber' => $data['whatsAppNumber'] ?? null,
