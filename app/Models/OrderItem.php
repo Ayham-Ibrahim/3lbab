@@ -32,6 +32,30 @@ class OrderItem extends Model
         'quantity' => 'integer',
     ];
 
+    
+    /**
+     * The attributes that are appended to the model's array form (included in response).
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'total_item_price',
+    ];
+
+
+    /**
+     * Accessor for total_item_price.
+     *
+     * @return float
+     */
+    public function getTotalItemPriceAttribute(): float
+    {
+        if ($this->relationLoaded('product') && $this->product) {
+            return (float) $this->quantity * (float) $this->product->price;
+        }
+        return 0.0;
+    }
+    
     /**
      * Get the order that owns the item.
      * 
