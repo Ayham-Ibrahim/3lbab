@@ -67,7 +67,7 @@ class OrderController extends Controller
             : $product->price;
 
         $item->final_price = $finalPrice;
-        $item->total_price_with_offer = $finalPrice * $item->quantity;
+        $item->total_price = $finalPrice * $item->quantity;
 
         return $item;
     });
