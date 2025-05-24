@@ -70,4 +70,23 @@ class Cart extends Model
     {
         return $this->hasMany(CartItem::class, 'cart_id', 'id');
     }
+
+    /**
+     * calculate the finale price adter offers
+     */
+    public function getTotalPriceWithOfferAttribute()
+    {
+        $this->loadMissing('items.product.currentOffer');
+
+        return $this->items->sum(function ($item) {
+            $product = $item->product;
+            $offer = $product->currentOffer->first();
+
+            $finalPrice = $offer
+                ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
+                : $product->price;
+
+            return $finalPrice * $item->quantity;
+        });
+    }
 }
