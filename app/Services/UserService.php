@@ -62,7 +62,7 @@ class UserService extends Service
             );
 
             if (!empty($data['role'])) {
-                $user->assignRole($data['role']);
+                $user->syncRoles([$data['role']]);
             }
 
             if (!empty($data['photo']) || !empty($data['location']) || !empty($data['whatsAppNumber'])) {
