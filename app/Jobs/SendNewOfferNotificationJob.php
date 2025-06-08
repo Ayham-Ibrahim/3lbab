@@ -29,21 +29,26 @@ class SendNewOfferNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $storeName = optional($this->offer->store)->name;
-        $customers = User::role('customer')->whereNotNull('fcm_token')->get();
+        try {
+            $storeName = optional($this->offer->store)->name;
+            $fcm = new FcmService();
 
-        $fcm = new FcmService();
-        foreach ($customers as $user) {
-            $fcm->sendNotification(
-                $user,
-                'عرض جديد!',
-                "تم إصدار عرض جديد من متجر {$storeName}",
-                $user->fcm_token,
-                [
-                    'offer_id' => (string) $this->offer->id,
-                    'store_id' => (string) $this->offer->store_id,
-                ]
-            );
+            User::role('customer')->whereNotNull('fcm_token')->chunk(100, function ($users) use ($fcm, $storeName) {
+                foreach ($users as $user) {
+                    $fcm->sendNotification(
+                        $user,
+                        'عرض جديد!',
+                        "تم إصدار عرض جديد من متجر {$storeName}",
+                        $user->fcm_token,
+                        [
+                            'offer_id' => (string) $this->offer->id,
+                            'store_id' => (string) $this->offer->store_id,
+                        ]
+                    );
+                }
+            });
+        } catch (\Throwable $e) {
+            \Log::error("SendNewOfferNotificationJob failed: " . $e->getMessage());
         }
     }
 }
