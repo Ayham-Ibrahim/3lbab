@@ -67,7 +67,7 @@ class StoreStoreRequest extends BaseFormRequest
             'phones' => [
                 'required',
                 'string',
-                'regex:/^(\+9639[0-9]{8})(,\+9639[0-9]{8}){0,2}$/',
+                'regex:/^((\+9639[0-9]{8})|(09[0-9]{8}))(,(\+9639[0-9]{8}|09[0-9]{8})){0,2}$/',
                 function ($attribute, $value, $fail) {
                     $phones = explode(',', $value);
                     foreach ($phones as $phone) {
@@ -177,7 +177,7 @@ class StoreStoreRequest extends BaseFormRequest
             'integer' => 'حقل :attribute يجب أن يكون رقماً صحيحاً.',
             'exists' => 'قيمة :attribute غير موجودة في السجلات.',
 
-            'phones.regex' => 'صيغة أرقام الهواتف غير صالحة. يجب أن تكون بالشكل: +963955555555 أو +963955555555,+963944444444 (بحد أقصى 3 أرقام مفصولة بفواصل)',
+            'phones.regex' => 'صيغة أرقام الهواتف غير صالحة. يجب أن تكون بالشكل: +963955555555 أو 0955555555 أو +963955555555,+963944444444,0944444444 (بحد أقصى 3 أرقام مفصولة بفواصل)',
             'phones.unique' => 'رقم الهاتف مستخدم من قبل متجر آخر.',
 
             'logo.required' => 'حقل شعار المتجر مطلوب.',

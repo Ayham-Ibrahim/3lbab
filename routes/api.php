@@ -23,6 +23,7 @@ use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\ForgetPasswordController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\PopupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -254,4 +255,10 @@ Route::delete('/reset-log', [LogController::class, 'resetLog']);
 Route::get('/logs', [LogController::class, 'getLog']);
 
 
-
+/*
+|--------------------------------------------------------------------------
+| Popup Routes
+|--------------------------------------------------------------------------
+*/
+Route::post('popup', [PopupController::class, 'handle'])->middleware('auth:api');
+Route::get('popup', [PopupController::class, 'getInfo']);
