@@ -14,6 +14,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PopupController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductController;
@@ -21,9 +22,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Auth\ForgetPasswordController;
 use App\Http\Controllers\Auth\EmailVerificationController;
-use App\Http\Controllers\PopupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -97,7 +98,7 @@ Route::middleware(['auth:api'])->group(function () {
     | Send Notification
     |--------------------------------------------------------------------------
     */
-    Route::post('send-notification', [AuthController::class, 'sendAdminBroadcastNotification']);
+    Route::post('send-notification', [NotificationController::class, 'sendAdminBroadcastNotification']);
 
     /*
     |--------------------------------------------------------------------------
