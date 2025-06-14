@@ -268,5 +268,5 @@ Route::get('/logs', [LogController::class, 'getLog']);
 | Popup Routes
 |--------------------------------------------------------------------------
 */
-Route::post('popup', [PopupController::class, 'handle'])->middleware('auth:api');
+Route::post('popup', [PopupController::class, 'handle'])->middleware('auth:sanctum');
 Route::get('popup', [PopupController::class, 'getInfo']);
