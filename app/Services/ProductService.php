@@ -153,6 +153,19 @@ class ProductService extends Service
     foreach ($variants as $variantData) {
         $variantId = $variantData['id'] ?? null;
 
+        
+    if (!$variantId) {
+        // حاول إيجاد المتغير من قاعدة البيانات بناءً على product_id + color_id + size_id
+        $existingVariant = $product->variants()
+            ->where('color_id', $variantData['color_id'])
+            ->where('size_id', $variantData['size_id'])
+            ->first();
+
+        if ($existingVariant) {
+            $variantId = $existingVariant->id;
+        }
+    }
+
         \Log::info('variantId is here = ' . $variantId);
 
         if ($variantId && $existingVariants->has($variantId)) {
