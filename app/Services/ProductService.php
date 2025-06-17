@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Services\FileStorage;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ProductService extends Service
 {
@@ -148,31 +150,56 @@ class ProductService extends Service
         // }
          $existingVariants = $product->variants()->get()->keyBy('id');
 
-        foreach ($variants as $variantData) {
-            if (isset($variantData['id']) && $existingVariants->has($variantData['id'])) {
-                $variant = $existingVariants[$variantData['id']];
+    foreach ($variants as $variantData) {
+        $variantId = $variantData['id'] ?? null;
 
-                $isUsedInOrders = $variant->orderItems()->exists();
-                $isUsedInCarts  = $variant->cartItems()->exists();
+        if ($variantId && $existingVariants->has($variantId)) {
+            $variant = $existingVariants[$variantId];
 
-                // هل فقط الكمية تغيرت؟
-                $isSameConfig = 
-                    $variant->color_id == ($variantData['color_id'] ?? $variant->color_id) &&
-                    $variant->size_id == ($variantData['size_id'] ?? $variant->size_id) &&
-                    $variant->product_id == $product->id;
+            $isUsedInOrders = $variant->orderItems()->exists();
+            $isUsedInCarts  = $variant->cartItems()->exists();
 
-                if (($isUsedInOrders || $isUsedInCarts) && !$isSameConfig) {
-                    // لا يمكن تعديله مباشرة، نقوم بتعطيله وإنشاء جديد
-                    $variant->update(['is_active' => false]);
-                    $product->variants()->create($variantData);
-                } else {
-                    // نحدثه عاديًا سواء لم يُستخدم أو لم تتغير الخصائص الأساسية
-                    $variant->update($variantData);
+            $isSameKey = 
+                $variant->product_id == $product->id &&
+                $variant->color_id == ($variantData['color_id'] ?? $variant->color_id) &&
+                $variant->size_id == ($variantData['size_id'] ?? $variant->size_id);
+
+            if (($isUsedInOrders || $isUsedInCarts) && !$isSameKey) {
+                // تحقق إذا كان هناك تعارض في القيم الثلاثية مع سجل آخر
+                $duplicate = ProductVariant::where('product_id', $product->id)
+                    ->where('color_id', $variantData['color_id'])
+                    ->where('size_id', $variantData['size_id'])
+                    ->where('id', '!=', $variant->id)
+                    ->first();
+
+                if ($duplicate) {
+                    throw ValidationException::withMessages([
+                        'variants' => ['هناك متغير آخر بنفس اللون والمقاس موجود بالفعل.']
+                    ]);
                 }
-            } else {
-                // جديد كليًا
+
+                // سجل مرتبط بطلب أو سلة وتغييره سيسبب خطأ -> نقوم بتعطيله وإنشاء جديد
+                $variant->update(['is_active' => false]);
                 $product->variants()->create($variantData);
+            } else {
+                // نفس المفتاح أو فقط تحديث للكمية
+                $variant->update($variantData);
             }
+        } else {
+            // سجل جديد بدون ID، تحقق أولًا من عدم وجود تطابق
+            $duplicate = ProductVariant::where('product_id', $product->id)
+                ->where('color_id', $variantData['color_id'])
+                ->where('size_id', $variantData['size_id'])
+                ->first();
+
+            if ($duplicate) {
+                throw ValidationException::withMessages([
+                    'variants' => ['هناك متغير بنفس اللون والمقاس موجود مسبقًا.']
+                ]);
+            }
+
+            $product->variants()->create($variantData);
         }
+    }
     }
 }
