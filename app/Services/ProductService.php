@@ -153,6 +153,8 @@ class ProductService extends Service
     foreach ($variants as $variantData) {
         $variantId = $variantData['id'] ?? null;
 
+        \Log::info('variantId ' . $variantId);
+
         if ($variantId && $existingVariants->has($variantId)) {
             $variant = $existingVariants[$variantId];
 
@@ -163,6 +165,13 @@ class ProductService extends Service
                 $variant->product_id == $product->id &&
                 $variant->color_id == ($variantData['color_id'] ?? $variant->color_id) &&
                 $variant->size_id == ($variantData['size_id'] ?? $variant->size_id);
+
+            if ($isSameKey) {
+                // تحديث الكمية أو أي بيانات أخرى مباشرة بدون فحص تكرار
+                $variant->update($variantData);
+                continue;  // ننتقل للعنصر التالي من المتغيرات
+            }
+
 
             if (($isUsedInOrders || $isUsedInCarts) && !$isSameKey) {
                 // تحقق إذا كان هناك تعارض في القيم الثلاثية مع سجل آخر
