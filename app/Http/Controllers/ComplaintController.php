@@ -27,10 +27,10 @@ class ComplaintController extends Controller
     public function __construct(ComplaintService $complaintService)
     {
         $this->complaintService = $complaintService;
-        $this->middleware(['permission:list-complaints'])->only('index');
-        $this->middleware(['permission:list-my-complaints'])->only('managerComplaints');
-        $this->middleware(['permission:is-readed-complaints'])->only('markAsRead');
-        $this->middleware(['permission:delete-complaints'])->only('destroy');
+        // $this->middleware(['permission:list-complaints'])->only('index');
+        // $this->middleware(['permission:list-my-complaints'])->only('managerComplaints');
+        // $this->middleware(['permission:is-readed-complaints'])->only('markAsRead');
+        // $this->middleware(['permission:delete-complaints'])->only('destroy');
     }
 
     /**

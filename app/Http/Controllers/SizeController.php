@@ -15,12 +15,12 @@ class SizeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware(['permission:list-sizes'])->only('index');
-        $this->middleware(['permission:show-sizes'])->only('show');
-        $this->middleware(['permission:store-sizes'])->only('store');
-        $this->middleware(['permission:update-sizes'])->only('update');
-        $this->middleware(['permission:delete-sizes'])->only('destroy');
-        $this->middleware(['permission:toggle-available-sizes'])->only('toggleAvailable');
+        // $this->middleware(['permission:list-sizes'])->only('index');
+        // $this->middleware(['permission:show-sizes'])->only('show');
+        // $this->middleware(['permission:store-sizes'])->only('store');
+        // $this->middleware(['permission:update-sizes'])->only('update');
+        // $this->middleware(['permission:delete-sizes'])->only('destroy');
+        // $this->middleware(['permission:toggle-available-sizes'])->only('toggleAvailable');
     }
 
     /**

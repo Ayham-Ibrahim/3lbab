@@ -28,14 +28,14 @@ class StoreController extends Controller
     public function __construct(StoreService $storeService)
     {
         $this->storeService = $storeService;
-        $this->middleware(['permission:list-stores'])->only('index');
-        $this->middleware(['permission:store-stores'])->only('store');
-        $this->middleware(['permission:show-stores'])->only('show');
-        $this->middleware(['permission:show-myStore'])->only('myStore');
-        $this->middleware(['permission:update-stores'])->only('update');
-        $this->middleware(['permission:update-myStore'])->only('updateMyStore');
-        $this->middleware(['permission:toggle-available-stores'])->only('toggleAvailable');
-        $this->middleware(['permission:delete-stores'])->only('destroy');
+        // $this->middleware(['permission:list-stores'])->only('index');
+        // $this->middleware(['permission:store-stores'])->only('store');
+        // $this->middleware(['permission:show-stores'])->only('show');
+        // $this->middleware(['permission:show-myStore'])->only('myStore');
+        // $this->middleware(['permission:update-stores'])->only('update');
+        // $this->middleware(['permission:update-myStore'])->only('updateMyStore');
+        // $this->middleware(['permission:toggle-available-stores'])->only('toggleAvailable');
+        // $this->middleware(['permission:delete-stores'])->only('destroy');
     }
 
     /**

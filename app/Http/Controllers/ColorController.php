@@ -16,12 +16,12 @@ class ColorController extends Controller
      */
     public function __construct()
     {
-        $this->middleware(['permission:list-colors'])->only('index');
-        $this->middleware(['permission:show-colors'])->only('show');
-        $this->middleware(['permission:store-colors'])->only('store');
-        $this->middleware(['permission:update-colors'])->only('update');
-        $this->middleware(['permission:delete-colors'])->only('destroy');
-        $this->middleware(['permission:toggle-available-colors'])->only('toggleAvailable');
+        // $this->middleware(['permission:list-colors'])->only('index');
+        // $this->middleware(['permission:show-colors'])->only('show');
+        // $this->middleware(['permission:store-colors'])->only('store');
+        // $this->middleware(['permission:update-colors'])->only('update');
+        // $this->middleware(['permission:delete-colors'])->only('destroy');
+        // $this->middleware(['permission:toggle-available-colors'])->only('toggleAvailable');
     }
 
     /**
