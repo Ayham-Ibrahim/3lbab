@@ -63,6 +63,9 @@ class CategoryController extends Controller
         $user_id = Auth::id();
         $store = Store::where('manager_id', $user_id)->first();
 
+        \Log::info('store: ' . $store->id);
+        \Log::info('user_id: ' . Auth::id());
+
         return $this->success(
             Category::select('id', 'name', 'image', 'is_available')
                 ->store($store ? $store->id : null)
