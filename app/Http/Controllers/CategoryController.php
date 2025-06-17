@@ -28,12 +28,12 @@ class CategoryController extends Controller
     public function __construct(CategoryService $categoryService)
     {
         $this->categoryService = $categoryService;
-        $this->middleware(['permission:list-categories'])->only('index');
-        $this->middleware(['permission:show-categories'])->only('show');
-        // $this->middleware(['permission:store-categories'])->only('store');
-        $this->middleware(['permission:update-categories'])->only('update');
-        $this->middleware(['permission:delete-categories'])->only('destroy');
-        $this->middleware(['permission:toggle-available-categories'])->only('toggleAvailable');
+        // $this->middleware(['permission:list-categories'])->only('index');
+        // $this->middleware(['permission:show-categories'])->only('show');
+        // // $this->middleware(['permission:store-categories'])->only('store');
+        // $this->middleware(['permission:update-categories'])->only('update');
+        // $this->middleware(['permission:delete-categories'])->only('destroy');
+        // $this->middleware(['permission:toggle-available-categories'])->only('toggleAvailable');
     }
 
     /**
