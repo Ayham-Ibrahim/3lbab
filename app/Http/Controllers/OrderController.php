@@ -55,6 +55,8 @@ class OrderController extends Controller
             'items.product.images',
             'items.product.currentOffer',
             'items.productVariant',
+            'items.productVariant.color',
+            'items.productVariant.size',
             'user',
             'store',
         ]);
