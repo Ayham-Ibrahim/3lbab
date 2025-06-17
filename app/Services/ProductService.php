@@ -153,7 +153,7 @@ class ProductService extends Service
     foreach ($variants as $variantData) {
         $variantId = $variantData['id'] ?? null;
 
-        \Log::info('variantId ' . $variantId);
+        \Log::info('variantId is here = ' . $variantId);
 
         if ($variantId && $existingVariants->has($variantId)) {
             $variant = $existingVariants[$variantId];
