@@ -68,11 +68,10 @@ class Color extends Model
 
     /**
      * Get all of the variants for the Color
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return Builder<ProductVariant>
      */
-    public function variants(): HasMany
+    public function variants()
     {
-        return $this->hasMany(ProductVariant::class, 'color_id', 'id');
+        return $this->hasMany(ProductVariant::class, 'color_id', 'id')->active();
     }
 }

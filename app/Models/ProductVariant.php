@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\CartItem;
+use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,7 +18,12 @@ class ProductVariant extends Model
         'product_id',
         'color_id',
         'size_id',
+        'is_active',
         'quantity'
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     /**
@@ -39,6 +46,11 @@ class ProductVariant extends Model
         return $this->belongsTo(Color::class, 'color_id');
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
     /**
      * Get the size that owns the ProductVariant
      *
@@ -47,5 +59,15 @@ class ProductVariant extends Model
     public function size(): BelongsTo
     {
         return $this->belongsTo(Size::class, 'size_id');
+    }
+
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class, 'product_variant_id');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_variant_id');
     }
 }

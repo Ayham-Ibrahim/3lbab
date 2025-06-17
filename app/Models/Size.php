@@ -68,10 +68,10 @@ class Size extends Model
     /**
      * Get all of the variants for the Size
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * 
      */
-    public function variants(): HasMany
+    public function variants()
     {
-        return $this->hasMany(ProductVariant::class, 'size_id', 'id');
+        return $this->hasMany(ProductVariant::class, 'size_id', 'id')->active();
     }
 }

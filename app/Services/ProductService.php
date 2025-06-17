@@ -75,8 +75,7 @@ class ProductService extends Service
             }
 
             if (isset($data['variants'])) {
-                $product->variants()->delete();
-                $this->storeProductVariants($product, $data['variants']);
+                $this->updateProductVariants($product, $data['variants']);
             }
 
             DB::commit();
@@ -123,5 +122,29 @@ class ProductService extends Service
     protected function storeProductVariants(Product $product, array $variants)
     {
         $product->variants()->createMany($variants);
+    }
+
+    protected function updateProductVariants(Product $product, array $variants)
+    {
+        $existingVariants = $product->variants()->get()->keyBy('id');
+        $sentIds = collect($variants)->pluck('id')->filter()->all();
+
+        foreach ($variants as $variantData) {
+            if (isset($variantData['id']) && $existingVariants->has($variantData['id'])) {
+                $variant = $existingVariants[$variantData['id']];
+
+                $isUsedInOrders = $variant->orderItems()->exists();
+                $isUsedInCarts  = $variant->cartItems()->exists();
+
+                if ($isUsedInOrders || $isUsedInCarts) {
+                    $variant->update(['is_active' => false]);
+                    $product->variants()->create($variantData);
+                } else {
+                    $variant->update($variantData);
+                }
+            } else {
+                $product->variants()->create($variantData);
+            }
+        }
     }
 }
