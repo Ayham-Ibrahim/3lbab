@@ -126,8 +126,27 @@ class ProductService extends Service
 
     protected function updateProductVariants(Product $product, array $variants)
     {
-        $existingVariants = $product->variants()->get()->keyBy('id');
-        $sentIds = collect($variants)->pluck('id')->filter()->all();
+        // $existingVariants = $product->variants()->get()->keyBy('id');
+        // $sentIds = collect($variants)->pluck('id')->filter()->all();
+
+        // foreach ($variants as $variantData) {
+        //     if (isset($variantData['id']) && $existingVariants->has($variantData['id'])) {
+        //         $variant = $existingVariants[$variantData['id']];
+
+        //         $isUsedInOrders = $variant->orderItems()->exists();
+        //         $isUsedInCarts  = $variant->cartItems()->exists();
+
+        //         if ($isUsedInOrders || $isUsedInCarts) {
+        //             $variant->update(['is_active' => false]);
+        //             $product->variants()->create($variantData);
+        //         } else {
+        //             $variant->update($variantData);
+        //         }
+        //     } else {
+        //         $product->variants()->create($variantData);
+        //     }
+        // }
+         $existingVariants = $product->variants()->get()->keyBy('id');
 
         foreach ($variants as $variantData) {
             if (isset($variantData['id']) && $existingVariants->has($variantData['id'])) {
@@ -136,13 +155,22 @@ class ProductService extends Service
                 $isUsedInOrders = $variant->orderItems()->exists();
                 $isUsedInCarts  = $variant->cartItems()->exists();
 
-                if ($isUsedInOrders || $isUsedInCarts) {
+                // هل فقط الكمية تغيرت؟
+                $isSameConfig = 
+                    $variant->color_id == ($variantData['color_id'] ?? $variant->color_id) &&
+                    $variant->size_id == ($variantData['size_id'] ?? $variant->size_id) &&
+                    $variant->product_id == $product->id;
+
+                if (($isUsedInOrders || $isUsedInCarts) && !$isSameConfig) {
+                    // لا يمكن تعديله مباشرة، نقوم بتعطيله وإنشاء جديد
                     $variant->update(['is_active' => false]);
                     $product->variants()->create($variantData);
                 } else {
+                    // نحدثه عاديًا سواء لم يُستخدم أو لم تتغير الخصائص الأساسية
                     $variant->update($variantData);
                 }
             } else {
+                // جديد كليًا
                 $product->variants()->create($variantData);
             }
         }
