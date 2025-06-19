@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\CartItem;
 use App\Models\OrderItem;
+use App\Models\Scopes\StockAvailabilityScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -25,6 +26,16 @@ class ProductVariant extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::addGlobalScope(new StockAvailabilityScope);
+    }
 
     /**
      * Get the product that owns the ProductVariant
