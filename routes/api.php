@@ -77,7 +77,7 @@ Route::prefix('email')->group(function () {
 | Authenticated Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:api'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -268,5 +268,5 @@ Route::get('/logs', [LogController::class, 'getLog']);
 | Popup Routes
 |--------------------------------------------------------------------------
 */
-Route::post('popup', [PopupController::class, 'handle'])->middleware('auth:sanctum');
+Route::post('popup', [PopupController::class, 'handle'])->middleware('auth:api');
 Route::get('popup', [PopupController::class, 'getInfo']);
