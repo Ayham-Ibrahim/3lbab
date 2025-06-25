@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('offers', function (Blueprint $table) {
-            $table->boolean('is_available')->default(true)->after('ends_at');
+            $table->boolean('is_available')->default(false)->after('ends_at');
         });
     }
 
