@@ -262,7 +262,7 @@ class Product extends Model
     public function currentOffer()
     {
         return $this->belongsToMany(Offer::class, 'offer_product', 'product_id', 'offer_id')
-            // ->where('starts_at', '<=', now())
+            ->where('is_available', true)
             ->where('ends_at', '>=', now())
             ->latest('starts_at');
     }

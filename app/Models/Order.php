@@ -41,7 +41,7 @@ class Order extends Model
      * Summary of appends
      * @var array
      */
-    protected $appends = ['total_price_with_offer', 'the_final_price'];
+    protected $appends = ['total_price_with_offer'];
 
 
     /**
@@ -91,24 +91,21 @@ class Order extends Model
     {
         $this->loadMissing('items.product.currentOffer');
 
-        return $this->items->sum(function ($item) {
+        $totalWithOffer = $this->items->sum(function ($item) {
             $product = $item->product;
             $offer = $product->currentOffer->first();
 
-            $finalPrice = $offer
+            $finalPrice = ($offer && $offer->is_available)
                 ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
                 : $product->price;
 
             return $finalPrice * $item->quantity;
         });
+
+        $finalPrice = max(0, $totalWithOffer - $this->discount_amount);
+
+        return $finalPrice;
     }
 
-    /**
-     * get The Final Price Attribute
-     * @return float|int
-     */
-    public function getTheFinalPriceAttribute()
-    {
-        return max(0, $this->total_price_with_offer - $this->discount_amount);
-    }
+    
 }
