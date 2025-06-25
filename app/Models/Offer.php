@@ -20,6 +20,7 @@ class Offer extends Model
         'image',
         'starts_at',
         'ends_at',
+        'is_available',
     ];
 
     /**
@@ -49,6 +50,15 @@ class Offer extends Model
         return $this->belongsTo(Store::class);
     }
 
+    /**
+     * toggle button for availability
+     * @return void
+     */
+    public function toggleAvailability(): void
+    {
+        $this->is_available = !$this->is_available;
+        $this->save();
+    }
 
     /**
      * Get the full URL for the offer image

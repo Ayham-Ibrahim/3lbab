@@ -235,6 +235,7 @@ Route::middleware(['auth:api'])->group(function () {
     */
     Route::get('offers/get-form-data', [OfferController::class, 'getOfferFormData']);
     Route::apiResource('offers', OfferController::class);
+    Route::patch('/offers/{offer}/toggle-availability', [OfferController::class, 'toggleAvailable']);
 
 });
 

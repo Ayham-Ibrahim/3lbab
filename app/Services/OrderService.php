@@ -125,7 +125,7 @@ class OrderService extends Service {
                 $fcmService->sendNotification(
                     $user,
                     'تم إنشاء طلب جديد',
-                    'شكراً لتسوقك معنا، تم تقديم طلبك بنجاح!',
+                    'شكراً لتسوقك معنا، تم تقديم طلبك بنجاح! , يمكنك متابعة الطلب من قائمة الطلبات',
                     $user->fcm_token,
                     [
                         'order_count' => (string) count($orders),

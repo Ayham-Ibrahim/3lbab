@@ -35,11 +35,17 @@ class OfferController extends Controller
      */
     public function index()
     {
-        return $this->success(
-            Offer::whereHas('store', function ($q) {
-                $q->where('manager_id', Auth::id());
-            })->get(),
-        'Offers retrieved successfully',200);
+        $user = Auth::user();
+        // Check if user has role super admin or admin
+        if ($user->hasRole('super admin') || $user->hasRole('admin')) {
+            $offers = Offer::all();
+        } else {
+            // Default: show only offers from store managed by this user
+            $offers = Offer::whereHas('store', function ($q) use ($user) {
+                $q->where('manager_id', $user->id);
+            })->get();
+        }
+        return $this->success($offers, 'Offers retrieved successfully', 200);
     }
 
     /**
@@ -116,6 +122,18 @@ class OfferController extends Controller
             'All offers retrieved successfully',
             200
         );
+    }
+
+    /**
+     * toggle Available
+     * @param \App\Models\Offer $offer
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function toggleAvailable(Offer $offer)
+    {
+        return $this->success(
+            $$offer->toggleAvailability(),
+        'Offers has been successfully Toggled',200);
     }
 
 
