@@ -132,7 +132,7 @@ class OfferController extends Controller
     public function toggleAvailable(Offer $offer)
     {
         return $this->success(
-            $$offer->toggleAvailability(),
+            $offer->toggleAvailability(),
         'Offers has been successfully Toggled',200);
     }
 

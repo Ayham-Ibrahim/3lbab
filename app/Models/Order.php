@@ -41,7 +41,7 @@ class Order extends Model
      * Summary of appends
      * @var array
      */
-    protected $appends = ['total_price_with_offer'];
+    protected $appends = ['total_price_with_offer', 'the_final_price'];
 
 
     /**
@@ -101,5 +101,14 @@ class Order extends Model
 
             return $finalPrice * $item->quantity;
         });
+    }
+
+    /**
+     * get The Final Price Attribute
+     * @return float|int
+     */
+    public function getTheFinalPriceAttribute()
+    {
+        return max(0, $this->total_price_with_offer - $this->discount_amount);
     }
 }
