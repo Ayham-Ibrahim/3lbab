@@ -118,7 +118,7 @@ class OfferController extends Controller
      */
     public function allOffers(){
         return $this->success(
-            Offer::latest()->get(),
+            Offer::latest()->available()->get(),
             'All offers retrieved successfully',
             200
         );

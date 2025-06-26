@@ -69,4 +69,9 @@ class Offer extends Model
     {
         return $this->attributes['image'] ? asset($this->attributes['image']) : null;
     }
+
+
+    public function scopeAvailable($query){
+        return $query->where('is_available', true);
+    }
 }
