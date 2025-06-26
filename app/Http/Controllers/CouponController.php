@@ -34,9 +34,9 @@ class CouponController extends Controller
      */
     public function index()
     {
-        $store = Store::where('manager_id',Auth::id())->first();
+
         return $this->success(
-            Coupon::where('store_id', $store->id)->get(),
+            Coupon::all(),
             'Coupons retrieved successfully',200
         );
     }

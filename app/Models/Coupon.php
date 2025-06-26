@@ -13,7 +13,7 @@ class Coupon extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'code', 'discount_percentage', 'max_uses', 'used_count', 'expires_at','store_id'
+        'code', 'discount_percentage', 'max_uses', 'used_count', 'expires_at',
     ];
 
     /**
@@ -58,12 +58,4 @@ class Coupon extends Model
         return round($total * ($this->discount_percentage / 100), 2);
     }
 
-    /**
-     * the store that the coupon belongs to 
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Store, Coupon>
-     */
-    public function store()
-    {
-        return $this->belongsTo(Store::class);
-    }
 }
