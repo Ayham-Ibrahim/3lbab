@@ -45,10 +45,18 @@ class Cart extends Model
 
     public function getTotalPriceAttribute(): float
     {
-        return (float) DB::table('cart_items')
-            ->where('cart_id', $this->id)
-            ->join('products', 'cart_items.product_id', '=', 'products.id')
-            ->sum(DB::raw('cart_items.quantity * products.price'));
+        $this->loadMissing('items.product.currentOffer');
+
+        return $this->items->sum(function ($item) {
+            $product = $item->product;
+            $offer = $product->currentOffer->first();
+
+            $finalPrice = ($offer)
+                ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
+                : $product->price;
+
+            return $finalPrice * $item->quantity;
+        });
     }
 
     /**
