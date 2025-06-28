@@ -44,6 +44,20 @@ class Order extends Model
     protected $appends = ['total_price_with_offer'];
 
 
+    protected static function booted()
+    {
+        static::deleting(function (Order $order) {
+            $order->loadMissing('items.productVariant');
+
+            foreach ($order->items as $item) {
+                $variant = $item->productVariant;
+                if ($variant) {
+                    $variant->increment('quantity', $item->quantity);
+                }
+            }
+        });
+    }
+
     /**
      * Get the user that owns the order.
      *
