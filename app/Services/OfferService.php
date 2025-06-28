@@ -103,42 +103,67 @@ class OfferService extends Service
      * @return array{code: int, data: array{all: mixed, offer_products: mixed, other_products: \Illuminate\Database\Eloquent\Collection, message: string, status: bool}|array{code: int, data: array{all: \Illuminate\Support\Collection, offer_products: \Illuminate\Support\Collection, other_products: \Illuminate\Database\Eloquent\Collection}, message: string, status: bool}|array{code: int, data: array{products_without_offer: \Illuminate\Database\Eloquent\Collection}, message: string, status: bool}|array{code: int, data: null, message: string, status: bool}}
      */
     public function getFormData(?int $offerId = null){
-        $store = Store::where('manager_id',Auth::id())->first();
-        if (!$store) {
-            return [
-                'status' => false,
-                'message' => 'You do not have a store',
-                'data' => null,
-                'code' => 404
-            ];
+        $user = Auth::user();
+
+        // إذا كان المستخدم ليس أدمن
+        if (!$user->hasRole('admin')) {
+            $store = Store::where('manager_id', $user->id)->first();
+            if (!$store) {
+                return [
+                    'status' => false,
+                    'message' => 'You do not have a store',
+                    'data' => null,
+                    'code' => 404
+                ];
+            }
         }
 
         $offerProducts = collect();
 
         if (!empty($offerId)) {
-            $offer = Offer::with('products')->where('store_id',$store->id)->find($offerId);
+            // إذا كان أدمن، لا تتحقق من المتجر
+            if ($user->hasRole('admin')) {
+                $offer = Offer::with('products')->find($offerId);
+            } else {
+                $offer = Offer::with('products')
+                    ->where('store_id', $store->id)
+                    ->find($offerId);
+            }
+
             if (!$offer) {
                 return [
                     'status' => false,
-                    'message' => 'Offer not found or does not belong to your store',
+                    'message' => 'Offer not found or you do not have permission to access it',
                     'data' => null,
                     'code' => 404
                 ];
             }
 
             $offerProducts = $offer->products;
+            $storeId = $offer->store_id; // حتى نستخدمه لاحقًا
+        } else {
+            // في حالة الإنشاء، يجب أن يكون المستخدم مدير متجر فقط
+            if ($user->hasRole('admin')) {
+                return [
+                    'status' => false,
+                    'message' => 'Admin cannot create offers directly without specifying a store',
+                    'data' => null,
+                    'code' => 400
+                ];
+            }
+            $storeId = $store->id;
         }
 
         $productIdsInOffers = DB::table('offer_product')
-            ->whereIn('offer_id',function ($query) use ($store){
-                $query->select('id')->from('offers')->where('store_id', $store->id);
+            ->whereIn('offer_id', function ($query) use ($storeId) {
+                $query->select('id')->from('offers')->where('store_id', $storeId);
             })
             ->pluck('product_id')->toArray();
-        
-        $productsWithoutOffer = Product::where('store_id',$store->id)
-            ->whereNotIn('id',$productIdsInOffers)
+
+        $productsWithoutOffer = Product::where('store_id', $storeId)
+            ->whereNotIn('id', $productIdsInOffers)
             ->get();
-        
+
         if (!empty($offerId)) {
             return [
                 'status' => true,
@@ -163,4 +188,5 @@ class OfferService extends Service
             'code' => 200
         ];
     }
+
 }
