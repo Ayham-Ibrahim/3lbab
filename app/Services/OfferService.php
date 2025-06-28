@@ -121,7 +121,6 @@ class OfferService extends Service
         $offerProducts = collect();
 
         if (!empty($offerId)) {
-            // إذا كان أدمن، لا تتحقق من المتجر
             if ($user->hasRole('admin')) {
                 $offer = Offer::with('products')->find($offerId);
             } else {
@@ -133,20 +132,19 @@ class OfferService extends Service
             if (!$offer) {
                 return [
                     'status' => false,
-                    'message' => 'Offer not found or you do not have permission to access it',
+                    'message' => 'لم يتم ايجاد العرض ',
                     'data' => null,
                     'code' => 404
                 ];
             }
 
             $offerProducts = $offer->products;
-            $storeId = $offer->store_id; // حتى نستخدمه لاحقًا
+            $storeId = $offer->store_id; 
         } else {
-            // في حالة الإنشاء، يجب أن يكون المستخدم مدير متجر فقط
             if ($user->hasRole('admin')) {
                 return [
                     'status' => false,
-                    'message' => 'Admin cannot create offers directly without specifying a store',
+                    'message' => 'لا يمكن للأدمن أن ينشئ عرض قبل ان يقوم باضافة محله',
                     'data' => null,
                     'code' => 400
                 ];
