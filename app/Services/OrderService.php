@@ -23,12 +23,25 @@ class OrderService extends Service {
      * @return \Illuminate\Database\Eloquent\Collection<int, Order>|null
      */
     public function listOrders(?string $status = null) {
-
-        $store = Store::where('manager_id',  Auth::id())->first();
-        if (!$store) {
-            $this->throwExceptionJson("No store found for this manager.");
-        }
+        $user = Auth::user();
         try {
+            if ($user->hasRole('super admin') || $user->hasRole('admin')) {
+
+                    $orders = Order::with([
+                        'store:id,name,logo',
+                        'items.product.currentOffer',
+
+                    ])
+                    ->filterWithStatus($status)
+                    ->latest()
+                    ->get();
+                    $orders->each->makeHidden('items');
+                    return $orders;
+            }
+            $store = Store::where('manager_id',  Auth::id())->first();
+            if (!$store) {
+                $this->throwExceptionJson("No store found for this manager.");
+            }
             return Order::with([
                     'store:id,name,logo'
                 ])->select('id','user_id','code','total_price','coupon_id','discount_amount','status','store_id','created_at')
@@ -45,6 +58,7 @@ class OrderService extends Service {
             $this->throwExceptionJson();
         }
     }
+
 
     /**
      * checkout my order (for customer)
