@@ -103,7 +103,7 @@ class AuthController extends Controller
     public function updateFcmToken(Request $request)
     {
         $request->validate([
-            'fcm_token' => 'required|string',
+            'fcm_token' => 'nullable',
         ]);
 
         $userId = Auth::id();
