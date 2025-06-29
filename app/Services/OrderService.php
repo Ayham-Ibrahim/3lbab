@@ -53,37 +53,43 @@ class OrderService extends Service {
      * @throws \Exception
      * @return Order[]|null
      */
-    public function checkout(int $userId,?string $couponCode = null)
+    public function checkout(int $userId, ?string $couponCode = null)
     {
         $cart = Cart::with('items.product', 'items.productVariant')->where('user_id', $userId)->firstOrFail();
         $orders = [];
         $coupon = null;
+
+        // 1. التحقق من الكوبون إن وُجد
         if ($couponCode) {
             $coupon = Coupon::where('code', $couponCode)->first();
             if (!$coupon || !$coupon->isValid()) {
-                // throw new \Exception('Invalid or expired coupon.');
-                $this->throwExceptionJson('Invalid or expired coupon.',422);
-
+                $this->throwExceptionJson('Invalid or expired coupon.', 422);
             }
         }
 
+        // 2. تجميع العناصر حسب المتجر
         $groupedItems = $cart->items->groupBy(fn($item) => $item->product->store_id);
+
+        // 3. إجمالي السلة قبل الكوبون (مع الأخذ بالاعتبار الخصومات على مستوى المنتج مسبقًا)
+        $cartTotalBeforeDiscount = $cart->items->sum(fn($item) => $item->final_price * $item->quantity);
+
+        // 4. حساب الخصم من الكوبون إن وُجد
+        $totalDiscount = $coupon ? $coupon->calculateDiscount($cartTotalBeforeDiscount) : 0;
 
         DB::beginTransaction();
         try {
             foreach ($groupedItems as $storeId => $items) {
-                $totalBeforeDiscount = $items->sum(fn($item) => $item->quantity * $item->product->price);
-                $discount = 0;
-                // add the coupon just for the store which has the coupon
-                $validCouponForThisStore = $coupon && $coupon->store_id === $storeId;
-                if ($coupon && !$validCouponForThisStore) {
-                    $discount = 0;
-                } elseif ($validCouponForThisStore) {
-                    $discount = $coupon->calculateDiscount($totalBeforeDiscount);
-                }
+                // 5. إجمالي هذا المتجر قبل الكوبون
+                $storeTotalBeforeCoupon = $items->sum(fn($item) => $item->final_price * $item->quantity);
 
-                $total = $totalBeforeDiscount - $discount;
+                // 6. تحديد نسبة خصم الكوبون لهذا المتجر
+                $storeDiscount = $cartTotalBeforeDiscount > 0
+                    ? round(($storeTotalBeforeCoupon / $cartTotalBeforeDiscount) * $totalDiscount, 2)
+                    : 0;
 
+                $total = $storeTotalBeforeCoupon - $storeDiscount;
+
+                // 7. تحقق من الكمية
                 foreach ($items as $item) {
                     $variant = $item->productVariant;
                     if (!$variant || $variant->quantity < $item->quantity) {
@@ -91,51 +97,57 @@ class OrderService extends Service {
                     }
                 }
 
+                // 8. إنشاء الطلب
                 $order = Order::create([
                     'user_id' => $userId,
                     'store_id' => $storeId,
                     'total_price' => $total,
-                    'discount_amount' => $discount,
-                    'coupon_id' => $validCouponForThisStore ? $coupon->id : null,
+                    'discount_amount' => $storeDiscount,
+                    'coupon_id' => $coupon?->id,
                     'status' => 'pending',
                     'code' => $this->generateOrderCode(),
                 ]);
                 $orders[] = $order;
+
+                // 9. إنشاء عناصر الطلب وتحديث الكمية
                 foreach ($items as $item) {
                     $item->productVariant->decrement('quantity', $item->quantity);
+
                     $order->items()->create([
                         'product_id' => $item->product_id,
                         'product_variant_id' => $item->product_variant_id,
                         'quantity' => $item->quantity,
-                        'price' => $item->product->price,
+                        'price' => $item->final_price,
                     ]);
-                    $item->delete();
-                }
 
-                if ($validCouponForThisStore) {
-                    $coupon->incrementUsage();
+                    $item->delete();
                 }
             }
 
-            DB::commit();
-            $user = User::where('id', $userId)->first();
+            // 10. تحديث عدد استخدامات الكوبون
+            if ($coupon) {
+                $coupon->incrementUsage();
+            }
 
-            if ($user  && $user->fcm_token) {
-                $fcmService = new FcmService();
-                $fcmService->sendNotification(
+            DB::commit();
+
+            // 11. إرسال إشعار للمستخدم
+            $user = User::find($userId);
+            if ($user && $user->fcm_token) {
+                (new FcmService())->sendNotification(
                     $user,
                     'تم إنشاء طلب جديد',
-                    'شكراً لتسوقك معنا، تم تقديم طلبك بنجاح! , يمكنك متابعة الطلب من قائمة الطلبات',
+                    'شكراً لتسوقك معنا، تم تقديم طلبك بنجاح! يمكنك متابعة الطلب من قائمة الطلبات.',
                     $user->fcm_token,
                     [
                         'order_count' => (string) count($orders),
                         'status' => 'pending'
                     ]
                 );
-            } else {
-                Log::warning("User ID {$user->id} has no FCM token.");
             }
+
             return $orders;
+
         } catch (\Throwable $th) {
             Log::error($th);
             DB::rollBack();
