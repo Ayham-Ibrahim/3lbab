@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
@@ -107,6 +108,8 @@ class AuthController extends Controller
 
         $userId = Auth::id();
         $user = User::find($userId);
+
+        Log::info('the fcm token : ' . $request->fcm_token);
         $user->update([
             'fcm_token' => $request->fcm_token
         ]);
