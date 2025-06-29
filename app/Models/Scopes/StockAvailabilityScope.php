@@ -15,7 +15,7 @@ class StockAvailabilityScope implements Scope
     public function apply(Builder $builder, Model $model): void
     {
         if (!Auth::check() || (Auth::check() && Auth::user()->hasRole('customer'))) {
-            $builder->where($model->getTable() . '.quantity', '>', 0);
+            $builder->where($model->getTable() . '.quantity', '>=', 0);
             return;
         }
     }
