@@ -54,7 +54,7 @@ class OrderController extends Controller
         $order->load([
             'items.product.images',
             'items.product.currentOffer',
-            'items.productVariant',
+            'items.productVariant' => fn($q) => $q->withoutGlobalScopes(),,
             'items.productVariant.color',
             'items.productVariant.size',
             'user',
