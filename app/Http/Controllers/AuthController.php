@@ -109,9 +109,9 @@ class AuthController extends Controller
         $userId = Auth::id();
         $user = User::find($userId);
 
-        Log::info('the fcm token : ' . $request->fcm_token);
+        Log::info('the fcm token : ' . $request->fcmToken);
         $user->update([
-            'fcmToken' => $request->fcm_token
+            'fcm_token' => $request->fcmToken
         ]);
 
         return response()->json(['message' => 'FCM Token updated successfully']);
