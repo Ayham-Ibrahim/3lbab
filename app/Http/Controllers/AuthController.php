@@ -103,7 +103,7 @@ class AuthController extends Controller
     public function updateFcmToken(Request $request)
     {
         $request->validate([
-            'fcm_token' => 'nullable',
+            'fcmToken' => 'nullable',
         ]);
 
         $userId = Auth::id();
@@ -111,7 +111,7 @@ class AuthController extends Controller
 
         Log::info('the fcm token : ' . $request->fcm_token);
         $user->update([
-            'fcm_token' => $request->fcm_token
+            'fcmToken' => $request->fcm_token
         ]);
 
         return response()->json(['message' => 'FCM Token updated successfully']);
