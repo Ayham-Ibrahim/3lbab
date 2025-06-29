@@ -26,7 +26,7 @@ class CartItem extends Model
      * @var array<int, string>
      */
     protected $appends = [
-        'total_item_price',
+        'total_item_price','final_price', 'total_price',
     ];
 
     /**
@@ -92,5 +92,19 @@ class CartItem extends Model
     public function productVariant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
+    public function getFinalPriceAttribute(): float
+    {
+        $offer = $this->product->currentOffer->first();
+
+        return $offer
+            ? round($this->product->price - ($this->product->price * $offer->discount_percentage / 100), 2)
+            : $this->product->price;
+    }
+
+    public function getTotalPriceAttribute(): float
+    {
+        return $this->final_price * $this->quantity;
     }
 }

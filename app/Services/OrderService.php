@@ -53,9 +53,9 @@ class OrderService extends Service {
      * @throws \Exception
      * @return Order[]|null
      */
-    public function checkout(int $userId, ?string $couponCode = null)
+    public function checkout(int $userId,?string $couponCode = null)
     {
-        $cart = Cart::with('items.product', 'items.productVariant')->where('user_id', $userId)->firstOrFail();
+        $cart = Cart::with('items.product','items.product.currentOffer', 'items.productVariant')->where('user_id', $userId)->firstOrFail();
         $orders = [];
         $coupon = null;
 
