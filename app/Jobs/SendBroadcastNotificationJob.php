@@ -11,7 +11,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class SendBroadcastNotificationJob implements ShouldQueue
+class SendBroadcastNotificationJob
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
