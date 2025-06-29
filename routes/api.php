@@ -72,6 +72,7 @@ Route::prefix('email')->group(function () {
     Route::post('verify-otp', [EmailVerificationController::class, 'verifyOtp']);
 });
 
+Route::patch('fcm-token', [AuthController::class, 'updateFcmToken']);
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes
@@ -91,7 +92,6 @@ Route::middleware(['auth:api'])->group(function () {
     | Update FCM Token Route
     |--------------------------------------------------------------------------
     */
-    Route::patch('fcm-token', [AuthController::class, 'updateFcmToken']);
 
     /*
     |--------------------------------------------------------------------------
