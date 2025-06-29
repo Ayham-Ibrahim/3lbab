@@ -35,7 +35,6 @@ class OrderService extends Service {
                     ->filterWithStatus($status)
                     ->latest()
                     ->get();
-                    $orders->each->makeHidden('items');
                     return $orders;
             }
             $store = Store::where('manager_id',  Auth::id())->first();
