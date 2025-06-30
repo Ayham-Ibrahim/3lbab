@@ -65,9 +65,23 @@ class OfferController extends Controller
      */
     public function show(Offer $offer)
     {
-        return $this->success(
-            $offer->load(['products']),
-        'Offers retrieved successfully',200);
+        $offer->load([
+            'products.images',
+        ]);
+
+        // Calculate discounted price for each product
+        $offer->products->transform(function ($product) use ($offer) {
+            $price = $product->price;
+            $discount = $offer->discount_percentage;
+
+            $finalPrice = round($price - ($price * $discount / 100), 2);
+
+            $product->final_price = $finalPrice;
+
+            return $product;
+        });
+
+        return $this->success($offer, 'Offer retrieved successfully', 200);
     }
 
     /**
