@@ -82,8 +82,8 @@ class OfferService extends Service
                 'starts_at'           => $data['starts_at'] ?? $offer->starts_at,
                 'ends_at'             => $data['ends_at'] ?? $offer->ends_at,
             ]));
-            if (isset($data['product_ids'])) {
-                $offer->products()->sync($data['product_ids']);
+            if (isset($data['products'])) {
+                $offer->products()->sync($data['products']);
             }
             DB::commit();
             return $offer;

@@ -28,8 +28,8 @@ class UpdateOfferRequest extends FormRequest
             'image' => 'nullable|file|image|mimes:png,jpg,jpeg|max:10000|mimetypes:image/jpeg,image/png,image/jpg',
             'starts_at' => 'nullable|date|before_or_equal:ends_at',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
-            'product_ids' => 'nullable|array',
-            'product_ids.*' => 'exists:products,id',
+            'products' => 'nullable|array',
+            'products.*' => 'exists:products,id',
         ];
     }
 }
