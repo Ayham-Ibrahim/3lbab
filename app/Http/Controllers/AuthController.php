@@ -61,10 +61,14 @@ class AuthController extends Controller
         // The request data is filtered to include only email and password
         $result = $this->authService->login($request->only('email', 'password'));
 
-        // If login fails, return an error response with HTTP 401 status
-        if (!$result) {
-            return $this->error('Invalid credentials', 401);
+        if ($result === 'invalid_credentials') {
+            return $this->error('خطأ في المدخلات', 401);
         }
+
+        if ($result === 'account_disabled') {
+            return $this->error('تم ايقاف حسابك من قبل ادارة التطبيق', 403);
+        }
+
         if ($request->filled('fcm_token')) {
             $result['user']->update([
                 'fcm_token' => $request->fcm_token

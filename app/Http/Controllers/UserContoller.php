@@ -95,6 +95,9 @@ class UserContoller extends Controller
     public function toggleAvailable(User $user)
     {
         $user->update(['is_available' => !$user->is_available]);
+        if (!$user->is_available) {
+            $user->tokens()->delete();
+        }
         return $this->success($user, 'The User has been successfully Toggled');
     }
 

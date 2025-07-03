@@ -30,16 +30,21 @@ class AuthService
      * Login an existing user.
      *
      * @param array $credentials
-     * @return array|bool
+     * 
      */
     public function login(array $credentials)
     {
         // Find the user by email
         $user = User::where('email', $credentials['email'])->first();
 
-        // Check if user exists and password is correct
+         // Check if user exists and password is correct
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return false; // Return false for invalid credentials
+            return 'invalid_credentials'; // return specific error
+        }
+
+        // ✅ Check if user is available
+        if (!$user->is_available) {
+            return 'account_disabled'; // return specific error
         }
 
         //load info
