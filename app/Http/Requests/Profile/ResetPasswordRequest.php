@@ -4,6 +4,8 @@ namespace App\Http\Requests\Profile;
 
 use App\Http\Requests\BaseFormRequest;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Validator;
+
 
 class ResetPasswordRequest extends BaseFormRequest
 {
@@ -32,11 +34,7 @@ class ResetPasswordRequest extends BaseFormRequest
                 'required',
                 'string',
                 'confirmed',
-                Password::min(8)
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols()
-                    ->uncompromised()
+                'min:8',
             ]
         ];
     }
@@ -50,7 +48,7 @@ class ResetPasswordRequest extends BaseFormRequest
     {
         return [
             'current_password' => 'كلمة المرور الحالية',
-            'new_password' => 'كلمة المرور الجديدة'
+            'new_password' => 'كلمة المرور الجديدة',
         ];
     }
 
@@ -66,12 +64,28 @@ class ResetPasswordRequest extends BaseFormRequest
             'string' => 'حقل :attribute يجب أن يكون نصاً.',
             'confirmed' => 'تأكيد كلمة المرور الجديدة غير متطابق.',
             'current_password' => 'كلمة المرور الحالية غير صحيحة.',
-
             'new_password.min' => 'يجب أن تتكون كلمة المرور الجديدة من 8 أحرف على الأقل.',
-            'new_password.mixed_case' => 'يجب أن تحتوي كلمة المرور الجديدة على أحرف كبيرة وصغيرة.',
-            'new_password.numbers' => 'يجب أن تحتوي كلمة المرور الجديدة على الأقل على رقم واحد.',
-            'new_password.symbols' => 'يجب أن تحتوي كلمة المرور الجديدة على الأقل على رمز واحد.',
-            'new_password.uncompromised' => 'كلمة المرور الجديدة ضعيفة جداً أو مسربة. يرجى اختيار كلمة مرور أخرى.'
         ];
+    }
+
+    public function withValidator(Validator $validator)
+    {
+        $validator->after(function ($validator) {
+            $password = $this->input('new_password');
+
+            if ($password) {
+                if (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password)) {
+                    $validator->errors()->add('new_password', 'يجب أن تحتوي كلمة المرور الجديدة على أحرف كبيرة وصغيرة.');
+                }
+
+                if (!preg_match('/[0-9]/', $password)) {
+                    $validator->errors()->add('new_password', 'يجب أن تحتوي كلمة المرور الجديدة على رقم واحد على الأقل.');
+                }
+
+                if (!preg_match('/[\W_]/', $password)) {
+                    $validator->errors()->add('new_password', 'يجب أن تحتوي كلمة المرور الجديدة على رمز واحد على الأقل.');
+                }
+            }
+        });
     }
 }
