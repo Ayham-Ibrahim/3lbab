@@ -74,16 +74,16 @@ class ResetPasswordRequest extends BaseFormRequest
             $password = $this->input('new_password');
 
             if ($password) {
-                if (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password)) {
-                    $validator->errors()->add('new_password', 'يجب أن تحتوي كلمة المرور الجديدة على أحرف كبيرة وصغيرة.');
-                }
+                $hasUpper = preg_match('/[A-Z]/', $password);
+                $hasLower = preg_match('/[a-z]/', $password);
+                $hasNumber = preg_match('/[0-9]/', $password);
+                $hasSymbol = preg_match('/[\W_]/', $password);
 
-                if (!preg_match('/[0-9]/', $password)) {
-                    $validator->errors()->add('new_password', 'يجب أن تحتوي كلمة المرور الجديدة على رقم واحد على الأقل.');
-                }
-
-                if (!preg_match('/[\W_]/', $password)) {
-                    $validator->errors()->add('new_password', 'يجب أن تحتوي كلمة المرور الجديدة على رمز واحد على الأقل.');
+                if (!($hasUpper && $hasLower && $hasNumber && $hasSymbol)) {
+                    $validator->errors()->add(
+                        'new_password',
+                        'يجب أن تحتوي كلمة المرور على: (حرف كبير - حرف صغير - رقم - رمز)واحد على الأقل.'
+                    );
                 }
             }
         });
