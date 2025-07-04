@@ -51,30 +51,25 @@ class ComplaintController extends Controller
     public function getAdmins()
     {
         $users = User::role(['admin', 'storeManager'])
-        ->with(['store' => function ($query) {
-            $query->select('id', 'manager_id', 'name as store_name');
-        }])
-        ->where(function ($query) {
-            $query->whereHas('roles', fn($q) => $q->whereIn('name', ['admin']))
-                  ->orWhereHas('store'); // storeManager يجب أن يكون لديه store
-        })
-        ->select('id', 'name')
-        ->get()
-        ->map(function ($user) {
-            $data = [
-                'id' => $user->id,
-                'name' => $user->name,
-            ];
+            ->with(['store' => function ($query) {
+                $query->select('id', 'manager_id', 'name as store_name');
+            }])
+            ->where(function ($query) {
+                $query->whereHas('roles', fn($q) => $q->where('name', 'admin'))
+                    ->orWhereHas('store');
+            })
+            ->select('id', 'name')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->hasRole('storeManager') && $user->store
+                        ? $user->store->store_name
+                        : $user->name,
+                ];
+            });
 
-            if ($user->hasRole('storeManager') && $user->store) {
-                $data['store_id'] = $user->store->id;
-                $data['store_name'] = $user->store->store_name;
-            }
-
-            return $data;
-        });
-
-    return $this->success($users);
+        return $this->success($users);
     }
 
     /**
