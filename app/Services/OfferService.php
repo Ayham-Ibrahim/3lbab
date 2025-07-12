@@ -142,12 +142,15 @@ class OfferService extends Service
             $storeId = $offer->store_id; 
         } else {
             if ($user->hasRole('admin')) {
-                return [
-                    'status' => false,
-                    'message' => 'لا يمكن للأدمن أن ينشئ عرض قبل ان يقوم باضافة محله',
-                    'data' => null,
-                    'code' => 400
-                ];
+                $store = Store::where('manager_id', $user->id)->first();
+                if (!$store) {
+                    return [
+                        'status' => false,
+                        'message' => 'You do not have a store',
+                        'data' => null,
+                        'code' => 404
+                    ];
+                }
             }
             $storeId = $store->id;
         }
