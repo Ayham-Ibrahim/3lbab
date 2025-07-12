@@ -79,6 +79,9 @@ class ColorController extends Controller
      */
     public function update(UpdateColorRequest $request, Color $color)
     {
+        if ($color->isAssociatedWithVariants()) {
+            return $this->error('لا يمكن تعديل هذا اللون لأنه مرتبط بمنتجات أخرى.', 409);
+        }
         $color->update(array_filter($request->validated()));
         return $this->success($color, 'Color updated successfully');
     }
@@ -92,6 +95,9 @@ class ColorController extends Controller
      */
     public function toggleAvailable(Color $color)
     {
+        if ($color->isAssociatedWithVariants()) {
+            return $this->error('لا يمكن تعديل هذا اللون لأنه مرتبط بمنتجات أخرى.', 409);
+        }
         $color->update(['is_available' => !$color->is_available]);
         return $this->success($color, 'The Color has been successfully Toggled');
     }
@@ -101,6 +107,9 @@ class ColorController extends Controller
      */
     public function destroy(Color $color)
     {
+        if ($color->isAssociatedWithVariants()) {
+            return $this->error('لا يمكن حذف هذا اللون لأنه مرتبط بمنتجات أخرى.', 409);
+        }
         $color->delete();
         return $this->success(null, 'Color deleted successfully', 204);
     }

@@ -40,7 +40,7 @@ class Color extends Model
      */
     public function getIsAvailableAttribute($value)
     {
-        return (bool)$value;
+        return (bool) $value;
     }
 
     /**
@@ -64,6 +64,15 @@ class Color extends Model
     public function scopeAvailable(Builder $query, ?bool $isAvailable = null): Builder
     {
         return $query->when($isAvailable !== null, fn($q) => $q->where('is_available', $isAvailable));
+    }
+
+    /**
+     * Check if the color is associated with any product variants.
+     * @return bool
+     */
+    public function isAssociatedWithVariants(): bool
+    {
+        return $this->variants()->exists();
     }
 
     /**

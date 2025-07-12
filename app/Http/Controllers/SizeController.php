@@ -80,6 +80,9 @@ class SizeController extends Controller
      */
     public function update(UpdateSizeRequest $request, Size $size)
     {
+        if ($size->isAssociatedWithVariants()) {
+            return $this->error('لا يمكن تعديل هذا القياس لأنه مرتبط بمنتجات أخرى.', 409);
+        }
         $size->update(array_filter($request->validated()));
         return $this->success($size, 'Size updated successfully');
     }
@@ -92,6 +95,9 @@ class SizeController extends Controller
      */
     public function toggleAvailable(Size $size)
     {
+        if ($size->isAssociatedWithVariants()) {
+            return $this->error('لا يمكن تعديل هذا القياس لأنه مرتبط بمنتجات أخرى.', 409);
+        }
         $size->update(['is_available' => !$size->is_available]);
         return $this->success($size, 'The Size has been successfully Toggled');
     }
@@ -101,6 +107,9 @@ class SizeController extends Controller
      */
     public function destroy(Size $size)
     {
+        if ($size->isAssociatedWithVariants()) {
+            return $this->error('لا يمكن الحذف هذا القياس لأنه مرتبط بمنتجات أخرى.', 409);
+        }
         $size->delete();
         return $this->success(null, 'Size deleted successfully', 204);
     }

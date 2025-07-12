@@ -39,7 +39,7 @@ class Size extends Model
      */
     public function getIsAvailableAttribute($value)
     {
-        return (bool)$value;
+        return (bool) $value;
     }
 
     /**
@@ -66,9 +66,18 @@ class Size extends Model
     }
 
     /**
+     * Check if the size is associated with any product variants.
+     * @return bool
+     */
+    public function isAssociatedWithVariants(): bool
+    {
+        return $this->variants()->exists();
+    }
+
+    /**
      * Get all of the variants for the Size
      *
-     * 
+     *
      */
     public function variants()
     {
