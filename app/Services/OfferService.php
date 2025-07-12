@@ -146,7 +146,7 @@ class OfferService extends Service
                 if (!$store) {
                     return [
                         'status' => false,
-                        'message' => 'You do not have a store',
+                        'message' => 'يجب أن يكون لديك متجر اولاً',
                         'data' => null,
                         'code' => 404
                     ];
