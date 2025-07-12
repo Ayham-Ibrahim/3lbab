@@ -12,7 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 class SendNewOfferNotificationJob implements ShouldQueue
 {
-   use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $offer;
 
@@ -33,18 +33,24 @@ class SendNewOfferNotificationJob implements ShouldQueue
             $storeName = optional($this->offer->store)->name;
             $fcm = new FcmService();
 
-            User::role('customer')->whereNotNull('fcm_token')->chunk(100, function ($users) use ($fcm, $storeName) {
+            User::role('customer')->with('devices')->chunk(100, function ($users) use ($fcm, $storeName) {
                 foreach ($users as $user) {
-                    $fcm->sendNotification(
-                        $user,
-                        'عرض جديد!',
-                        "تم إصدار عرض جديد من متجر {$storeName}",
-                        $user->fcm_token,
-                        [
-                            'offer_id' => (string) $this->offer->id,
-                            'store_id' => (string) $this->offer->store_id,
-                        ]
-                    );
+                    foreach ($user->devices as $device) {
+                        try {
+                            $fcm->sendNotification(
+                                $user,
+                                'عرض جديد!',
+                                "تم إصدار عرض جديد من متجر {$storeName}",
+                                $device->fcm_token,
+                                [
+                                    'offer_id' => (string) $this->offer->id,
+                                    'store_id' => (string) $this->offer->store_id,
+                                ]
+                            );
+                        } catch (\Throwable $e) {
+                            \Log::error("فشل إرسال إشعار إلى المستخدم {$user->id} على الجهاز {$device->id}: {$e->getMessage()}");
+                        }
+                    }
                 }
             });
         } catch (\Throwable $e) {

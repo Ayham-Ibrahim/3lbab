@@ -70,15 +70,32 @@ class StoreService extends Service
 
             DB::commit();
 
-            $manager = User::where('id', $store->manager_id)->first();
+            $manager = User::with('devices')->find($store->manager_id);
 
-            if ($manager && $manager->fcm_token) {
+            if ($manager && $manager->devices->isNotEmpty()) {
                 $fcmService = new FcmService();
-                $success = $fcmService->sendNotification($manager,'تم إنشاء متجر جديد',"تم إنشاء المتجر: {$store->name}",$manager->fcm_token,['type' => 'store_created', 'store_id' => $store->id]);
-                if ($success) {
-                    Log::info("تم إرسال الإشعار إلى المستخدم {$manager->id}");
-                } else {
-                    Log::warning("فشل إرسال الإشعار إلى المستخدم {$manager->id}");
+
+                foreach ($manager->devices as $device) {
+                    try {
+                        $success = $fcmService->sendNotification(
+                            $manager,
+                            'تم إنشاء متجر جديد',
+                            "تم إنشاء المتجر: {$store->name}",
+                            $device->fcm_token,
+                            [
+                                'type' => 'store_created',
+                                'store_id' => $store->id
+                            ]
+                        );
+
+                        if ($success) {
+                            Log::info("تم إرسال الإشعار إلى الجهاز {$device->id} للمستخدم {$manager->id}");
+                        } else {
+                            Log::warning("فشل إرسال الإشعار إلى الجهاز {$device->id} للمستخدم {$manager->id}");
+                        }
+                    } catch (\Throwable $e) {
+                        Log::error("فشل إرسال الإشعار إلى الجهاز {$device->id} للمستخدم {$manager->id}: {$e->getMessage()}");
+                    }
                 }
             }
 

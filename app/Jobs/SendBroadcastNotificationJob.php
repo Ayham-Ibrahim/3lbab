@@ -36,18 +36,20 @@ class SendBroadcastNotificationJob
     {
         $fcm = new FcmService();
 
-        User::role('customer')->whereNotNull('fcm_token')->chunk(500, function ($users) use ($fcm) {
+    User::role('customer')->with('devices')->chunk(500, function ($users) use ($fcm) {
             foreach ($users as $user) {
-                try {
-                    $fcm->sendNotification(
-                        $user,
-                        $this->title,
-                        $this->body,
-                        $user->fcm_token,
-                        $this->data
-                    );
-                } catch (\Throwable $e) {
-                    Log::error("فشل إرسال إشعار إلى المستخدم {$user->id}: {$e->getMessage()}");
+                foreach ($user->devices as $device) {
+                    try {
+                        $fcm->sendNotification(
+                            $user,
+                            $this->title,
+                            $this->body,
+                            $device->fcm_token,
+                            $this->data
+                        );
+                    } catch (\Throwable $e) {
+                        Log::error("فشل إرسال إشعار إلى المستخدم {$user->id} على الجهاز {$device->id}: {$e->getMessage()}");
+                    }
                 }
             }
         });

@@ -145,18 +145,26 @@ class OrderService extends Service {
             DB::commit();
 
             // 11. إرسال إشعار للمستخدم
-            $user = User::find($userId);
-            if ($user && $user->fcm_token) {
-                (new FcmService())->sendNotification(
-                    $user,
-                    'تم إنشاء طلب جديد',
-                    'شكراً لتسوقك معنا، تم تقديم طلبك بنجاح! يمكنك متابعة الطلب من قائمة الطلبات.',
-                    $user->fcm_token,
-                    [
-                        'order_count' => (string) count($orders),
-                        'status' => 'pending'
-                    ]
-                );
+            $user = User::with('devices')->find($userId);
+
+            if ($user && $user->devices->isNotEmpty()) {
+                $fcmService = new FcmService();
+                foreach ($user->devices as $device) {
+                    try {
+                        $fcmService->sendNotification(
+                            $user,
+                            'تم إنشاء طلب جديد',
+                            'شكراً لتسوقك معنا، تم تقديم طلبك بنجاح! يمكنك متابعة الطلب من قائمة الطلبات.',
+                            $device->fcm_token,
+                            [
+                                'order_count' => (string) count($orders),
+                                'status' => 'pending'
+                            ]
+                        );
+                    } catch (\Throwable $e) {
+                        \Log::error("فشل إرسال إشعار إلى الجهاز {$device->id} للمستخدم {$user->id}: {$e->getMessage()}");
+                    }
+                }
             }
 
             return $orders;
@@ -209,22 +217,31 @@ class OrderService extends Service {
     {
         try {
             $order->update(['status' => $data['status']]);
-            $user = User::where('id', $order->user_id)->first();
+            $user = User::with('devices')->find($order->user_id);
 
-            if ($user  && $user->fcm_token) {
+            if ($user && $user->devices->isNotEmpty()) {
                 $fcmService = new FcmService();
-                $success = $fcmService->sendNotification($user,
-                'تم تحديث حالة الطلب',
-                'طلبك رقم ' . $order->code . ' تم تغييره إلى ' . $order->status,
-                $user->fcm_token,
-                [
-                    'order_id' => $order->id,
-                    'status' => $order->status
-                ]);
-                if ($success) {
-                    Log::info("تم إرسال الإشعار إلى المستخدم {$user->id}");
-                } else {
-                    Log::warning("فشل إرسال الإشعار إلى المستخدم {$user->id}");
+                foreach ($user->devices as $device) {
+                    try {
+                        $success = $fcmService->sendNotification(
+                            $user,
+                            'تم تحديث حالة الطلب',
+                            'طلبك رقم ' . $order->code . ' تم تغييره إلى ' . $order->status,
+                            $device->fcm_token,
+                            [
+                                'order_id' => $order->id,
+                                'status' => $order->status
+                            ]
+                        );
+
+                        if ($success) {
+                            Log::info("تم إرسال الإشعار إلى الجهاز {$device->id} للمستخدم {$user->id}");
+                        } else {
+                            Log::warning("فشل إرسال الإشعار إلى الجهاز {$device->id} للمستخدم {$user->id}");
+                        }
+                    } catch (\Throwable $e) {
+                        Log::error("حدث خطأ أثناء إرسال إشعار إلى الجهاز {$device->id} للمستخدم {$user->id}: {$e->getMessage()}");
+                    }
                 }
             }
             return $order;

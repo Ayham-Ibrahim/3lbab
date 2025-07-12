@@ -32,7 +32,7 @@ class SendCategoryNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $storeManagers = User::role('storemanager')->whereNotNull('fcm_token')->get();
+        $storeManagers = User::role('storemanager')->with('devices')->get();
         $fcmService = new FcmService();
 
         $status = $this->category->is_available ? 'متاحة' : 'غير متاحة';
@@ -40,16 +40,22 @@ class SendCategoryNotificationJob implements ShouldQueue
         $body = "تم تغيير حالة التصنيف ({$this->category->name}) إلى: {$status}";
 
         foreach ($storeManagers as $user) {
-            $fcmService->sendNotification(
-                $user,
-                $title,
-                $body,
-                $user->fcm_token,
-                [
-                    'category_id' => (string) $this->category->id,
-                    'is_available' => $this->category->is_available ? '1' : '0',
-                ]
-            );
+            foreach ($user->devices as $device) {
+                try {
+                    $fcmService->sendNotification(
+                        $user,
+                        $title,
+                        $body,
+                        $device->fcm_token,
+                        [
+                            'category_id' => (string) $this->category->id,
+                            'is_available' => $this->category->is_available ? '1' : '0',
+                        ]
+                    );
+                } catch (\Throwable $e) {
+                    \Log::error("فشل إرسال إشعار إلى المستخدم {$user->id} على الجهاز {$device->id}: {$e->getMessage()}");
+                }
+            }
         }
     }
 }

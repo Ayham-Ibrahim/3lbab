@@ -87,19 +87,26 @@ class CartService extends Service // Assuming Service class exists
                 ]);
             }
             DB::commit();
-            $user =  User::where('id', $userId)->first();
-            if ($user && $user->fcm_token) {
+            $user = User::with('devices')->find($userId);
+
+            if ($user && $user->devices->isNotEmpty()) {
                 $fcmService = new FcmService();
-                $fcmService->sendNotification(
-                    $user,
-                    'تمت إضافة منتج للسلة',
-                    'تمت إضافة منتج جديد إلى سلتك بنجاح يمكنك مراجعة قسم المشتريات.',
-                    $user->fcm_token,
-                    [
-                        'type' => 'cart',
-                        'cart_items_count' => $cart->items()->count(),
-                    ]
-                );
+                foreach ($user->devices as $device) {
+                    try {
+                        $fcmService->sendNotification(
+                            $user,
+                            'تمت إضافة منتج للسلة',
+                            'تمت إضافة منتج جديد إلى سلتك بنجاح. يمكنك مراجعة قسم المشتريات.',
+                            $device->fcm_token,
+                            [
+                                'type' => 'cart',
+                                'cart_items_count' => $cart->items()->count(),
+                            ]
+                        );
+                    } catch (\Throwable $e) {
+                        \Log::error("فشل إرسال إشعار إلى الجهاز {$device->id} للمستخدم {$user->id}: {$e->getMessage()}");
+                    }
+                }
             }
             return $cart->load([
                 'items.product.images',

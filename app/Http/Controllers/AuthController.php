@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserDevice;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Log;
@@ -114,9 +115,14 @@ class AuthController extends Controller
         $user = User::find($userId);
 
         Log::info('the fcm token : ' . $request->fcm_token);
-        $user->update([
+        $userDevice = UserDevice::firstOrCreate(
+        [
             'fcm_token' => $request->fcm_token
-        ]);
+        ],
+        [
+            'user_id' => $user->id,
+        ]
+    );
 
         return response()->json(['message' => 'FCM Token updated successfully']);
     }
