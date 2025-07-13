@@ -99,6 +99,7 @@ Route::middleware(['auth:api'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::post('send-notification', [NotificationController::class, 'sendAdminBroadcastNotification']);
+    Route::get('/notifications', [NotificationController::class, 'index']);
 
     /*
     |--------------------------------------------------------------------------

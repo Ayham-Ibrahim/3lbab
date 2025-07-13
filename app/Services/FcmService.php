@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Google\Auth\Credentials\ServiceAccountCredentials;
@@ -43,6 +44,13 @@ class FcmService
             'https://www.googleapis.com/auth/firebase.messaging',
             $this->credentialsPath
         );
+
+        Notification::create([
+            'user_id' => $user->id,
+            'title'   => $title,
+            'body'    => $body,
+            'data'    => $data,
+        ]);
 
         // Get an OAuth 2.0 token
         $authToken = $credentials->fetchAuthToken()['access_token'];
