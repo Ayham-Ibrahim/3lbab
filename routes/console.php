@@ -10,4 +10,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 
-Schedule::command('queue:work --stop-when-empty')->everyTenMinutes();
+Schedule::command('queue:work --stop-when-empty')->everyThreeMinutes();
+Schedule::command('notifications:clean')->daily();
