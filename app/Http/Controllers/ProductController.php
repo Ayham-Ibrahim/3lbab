@@ -133,18 +133,18 @@ class ProductController extends Controller
     public function getAvailable(Request $request)
     {
         $user = Auth::user();
-        $user = Auth::user();
         $storeId = $request->input('store');
         $categoryId = $request->input('category');
 
-        if ($user->hasRole('store manager')) {
+        if ($user && $user->hasRole('storeManager')) {
             $store = Store::where('manager_id', $user->id)->first();
             if (!$store) {
                 return $this->error('No store found for this manager.', 404);
             }
 
-            $storeId = $store->id;
+            $storeId = $store->id; // تجاهل storeId من الطلب وفرض متجر المدير
         }
+
 
 
         $products = Product::with(['images', 'currentOffer'])
@@ -157,6 +157,7 @@ class ProductController extends Controller
 
         $products->getCollection()->transform(function ($product) use ($user) {
             $offer = $product->currentOffer->first();
+
             $product->final_price = $offer
                 ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
                 : $product->price;
