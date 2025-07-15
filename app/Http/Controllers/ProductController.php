@@ -132,16 +132,29 @@ class ProductController extends Controller
      */
     public function getAvailable(Request $request)
     {
+        $user = Auth::user();
+        $user = Auth::user();
+        $storeId = $request->input('store');
+        $categoryId = $request->input('category');
+
+        if ($user->hasRole('store manager')) {
+            $store = Store::where('manager_id', $user->id)->first();
+            if (!$store) {
+                return $this->error('No store found for this manager.', 404);
+            }
+
+            $storeId = $store->id;
+        }
+
+
         $products = Product::with(['images', 'currentOffer'])
-            ->select('id', 'name', 'price')
+            ->select('id', 'name', 'price','store_id', 'category_id')
             ->available(true)
-            ->availableInStore($request->input('store'))
-            ->availableInCategory($request->input('category'))
+            ->availableInStore($storeId)
+            ->availableInCategory($categoryId)
             ->searchByName($request->input('search'))
             ->paginate();
 
-
-        $user = Auth::user();
         $products->getCollection()->transform(function ($product) use ($user) {
             $offer = $product->currentOffer->first();
             $product->final_price = $offer
