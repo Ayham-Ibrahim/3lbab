@@ -52,7 +52,6 @@ class OfferService extends Service
             }
 
             DB::commit();
-            SendNewOfferNotificationJob::dispatch($offer);
             return $offer;
         } catch (\Throwable $th) {
             Log::error($th);
