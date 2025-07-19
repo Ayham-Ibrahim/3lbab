@@ -107,4 +107,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 return handleApiExceptions($e, $request);
             }
         });
+    })->withSchedule(function (Schedule $schedule) {
+        $schedule->command('queue:work --stop-when-empty')->everyMinute();
     })->create();
