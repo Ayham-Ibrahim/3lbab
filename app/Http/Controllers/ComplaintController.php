@@ -92,7 +92,7 @@ class ComplaintController extends Controller
             'customer:id,name',
             'manager:id,name'
         ])
-            ->myComplaint($myComplaint)
+            ->myComplaint(true)
             ->readStatus($isReadedFilter)
             ->latest()
             ->get();
