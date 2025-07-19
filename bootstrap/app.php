@@ -14,69 +14,73 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Console\Scheduling\Schedule;
 
-/**
- * Handles formatting API exceptions into a standardized JSON response.
- *
- * @param Throwable $e
- * @param Request $request
- * @return \Illuminate\Http\JsonResponse
- */
-function handleApiExceptions(Throwable $e, Request $request): \Illuminate\Http\JsonResponse
-{
-    // Log the actual system error for developers
-    Log::error(
-        "Exception: " . get_class($e) . " - Message: " . $e->getMessage() . " - File: " . $e->getFile() . " - Line: " . $e->getLine()
-    );
 
-    // Use a match expression for a clean, declarative way to handle exceptions
-    $responseDetails = match (get_class($e)) {
-        ValidationException::class => [
-            'statusCode' => 422,
-            'message' => $e->getMessage(),
-            // 'errors' key will be added below for type safety
-        ],
+if (!function_exists('handleApiExceptions')) {
 
-        AuthenticationException::class => [
-            'statusCode' => 401,
-            'message' => 'Unauthenticated.',
-        ],
-
-        AuthorizationException::class => [
-            'statusCode' => 403,
-            'message' => 'This action is unauthorized.',
-        ],
-
-        NotFoundHttpException::class => [
-            'statusCode' => 404,
-            'message' => 'The requested resource was not found.'
-        ],
-
-        default => [
-            'statusCode' => $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500,
-            'message' => 'An unexpected error occurred. Please try again later.',
-        ]
-    };
-
-    // Handle validation errors specifically to ensure type safety
-    if ($e instanceof ValidationException) {
-        $responseDetails['errors'] = $e->errors();
+    /**
+     * Handles formatting API exceptions into a standardized JSON response.
+     *
+     * @param Throwable $e
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    function handleApiExceptions(Throwable $e, Request $request): \Illuminate\Http\JsonResponse
+    {
+        // Log the actual system error for developers
+        Log::error(
+            "Exception: " . get_class($e) . " - Message: " . $e->getMessage() . " - File: " . $e->getFile() . " - Line: " . $e->getLine()
+        );
+    
+        // Use a match expression for a clean, declarative way to handle exceptions
+        $responseDetails = match (get_class($e)) {
+            ValidationException::class => [
+                'statusCode' => 422,
+                'message' => $e->getMessage(),
+                // 'errors' key will be added below for type safety
+            ],
+    
+            AuthenticationException::class => [
+                'statusCode' => 401,
+                'message' => 'Unauthenticated.',
+            ],
+    
+            AuthorizationException::class => [
+                'statusCode' => 403,
+                'message' => 'This action is unauthorized.',
+            ],
+    
+            NotFoundHttpException::class => [
+                'statusCode' => 404,
+                'message' => 'The requested resource was not found.'
+            ],
+    
+            default => [
+                'statusCode' => $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500,
+                'message' => 'An unexpected error occurred. Please try again later.',
+            ]
+        };
+    
+        // Handle validation errors specifically to ensure type safety
+        if ($e instanceof ValidationException) {
+            $responseDetails['errors'] = $e->errors();
+        }
+    
+        // Ensure status code is a valid client/server error code
+        if ($responseDetails['statusCode'] < 400 || $responseDetails['statusCode'] >= 600) {
+            $responseDetails['statusCode'] = 500;
+        }
+    
+        $payload = [
+            'status' => 'error',
+            'message' => $responseDetails['message'],
+        ];
+    
+        if (!empty($responseDetails['errors'])) {
+            $payload['errors'] = $responseDetails['errors'];
+        }
+    
+        return response()->json($payload, $responseDetails['statusCode']);
     }
-
-    // Ensure status code is a valid client/server error code
-    if ($responseDetails['statusCode'] < 400 || $responseDetails['statusCode'] >= 600) {
-        $responseDetails['statusCode'] = 500;
-    }
-
-    $payload = [
-        'status' => 'error',
-        'message' => $responseDetails['message'],
-    ];
-
-    if (!empty($responseDetails['errors'])) {
-        $payload['errors'] = $responseDetails['errors'];
-    }
-
-    return response()->json($payload, $responseDetails['statusCode']);
 }
 
 return Application::configure(basePath: dirname(__DIR__))
