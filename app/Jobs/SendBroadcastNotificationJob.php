@@ -36,7 +36,7 @@ class SendBroadcastNotificationJob
     {
         $fcm = new FcmService();
 
-    User::role('customer')->with('devices')->chunk(500, function ($users) use ($fcm) {
+        User::with('devices')->chunk(500, function ($users) use ($fcm) {
             foreach ($users as $user) {
                 foreach ($user->devices as $device) {
                     try {
