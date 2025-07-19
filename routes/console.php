@@ -10,5 +10,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 
-Schedule::command('queue:work --stop-when-empty')->everyThreeMinutes();
-Schedule::command('notifications:clean')->daily();
+Schedule::command('queue:work --stop-when-empty --tries=3')->everyThreeMinutes()->withoutOverlapping();
