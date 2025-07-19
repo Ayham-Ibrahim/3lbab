@@ -46,6 +46,7 @@ class OfferObserver
     public function updated(Offer $offer): void
     {
         if ($offer->isDirty('is_available') && $offer->is_available) {
+            \Log::info('arrive to the job');
             SendNewOfferNotificationJob::dispatch($offer->load('store'));
         }
     }

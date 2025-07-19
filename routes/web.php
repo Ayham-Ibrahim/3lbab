@@ -22,3 +22,16 @@ Route::get('/link', function () {
             ], 500);
         }
 });
+
+
+Route::get('/clear-cache', function() {
+    try {
+        Artisan::call('config:clear'); 
+        Artisan::call('config:cache'); 
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
+        return '<h1>Cache Cleared and Recached Successfully!</h1><p>You can now delete this route from web.php</p>';
+    } catch (Exception $e) {
+        return '<h1>Error:</h1><p>' . $e->getMessage() . '</p>';
+    }
+});
