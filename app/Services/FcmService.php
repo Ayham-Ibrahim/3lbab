@@ -45,12 +45,12 @@ class FcmService
             $this->credentialsPath
         );
 
-        Notification::create([
-            'user_id' => $user->id,
-            'title'   => $title,
-            'body'    => $body,
-            'data'    => $data,
-        ]);
+        // Notification::create([
+        //     'user_id' => $user->id,
+        //     'title'   => $title,
+        //     'body'    => $body,
+        //     'data'    => $data,
+        // ]);
 
         // Get an OAuth 2.0 token
         $authToken = $credentials->fetchAuthToken()['access_token'];
