@@ -29,32 +29,46 @@ class SendNewOfferNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        try {
-            $storeName = optional($this->offer->store)->name;
-            $fcm = new FcmService();
+        \Log::info("Job [{$this->job->getJobId()}] is starting. Processing offer ID: {$this->offer->id}");
 
-            User::role('customer')->with('devices')->chunk(100, function ($users) use ($fcm, $storeName) {
-                foreach ($users as $user) {
-                    foreach ($user->devices as $device) {
-                        try {
-                            $fcm->sendNotification(
-                                $user,
-                                'عرض جديد!',
-                                "تم إصدار عرض جديد من متجر {$storeName}",
-                                $device->fcm_token,
-                                [
-                                    'offer_id' => (string) $this->offer->id,
-                                    'store_id' => (string) $this->offer->store_id,
-                                ]
-                            );
-                        } catch (\Throwable $e) {
-                            \Log::error("فشل إرسال إشعار إلى المستخدم {$user->id} على الجهاز {$device->id}: {$e->getMessage()}");
-                        }
+    try {
+        $storeName = optional($this->offer->store)->name;
+        $fcm = new FcmService();
+        $totalUsers = User::role('customer')->count();
+
+        \Log::info("Job [{$this->job->getJobId()}]: Found {$totalUsers} customers to notify.");
+
+        User::role('customer')->with('devices')->chunk(100, function ($users, $page) use ($fcm, $storeName) {
+            \Log::info("Job [{$this->job->getJobId()}]: Processing chunk #{$page}. Memory usage: " . (memory_get_usage(true) / 1024 / 1024) . " MB");
+            
+            foreach ($users as $user) {
+                foreach ($user->devices as $device) {
+                    try {
+                        $fcm->sendNotification(
+                            $user,
+                            'عرض جديد!',
+                            "تم إصدار عرض جديد من متجر {$storeName}",
+                            $device->fcm_token,
+                            [
+                                'offer_id' => (string) $this->offer->id,
+                                'store_id' => (string) $this->offer->store_id,
+                            ]
+                        );
+                    } catch (\Throwable $e) {
+                        \Log::error("Job [{$this->job->getJobId()}]: Failed to send to user {$user->id} device {$device->id}: " . $e->getMessage());
                     }
                 }
-            });
-        } catch (\Throwable $e) {
-            \Log::error("SendNewOfferNotificationJob failed: " . $e->getMessage());
-        }
+            }
+            return true; // استمر في الـ chunk
+        });
+
+        \Log::info("Job [{$this->job->getJobId()}] has completed successfully.");
+
+    } catch (\Throwable $e) {
+        // هذا سيلتقط الأخطاء الفادحة التي تحدث قبل أو بعد الـ chunk
+        \Log::error("Job [{$this->job->getJobId()}] FAILED: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+        // أعد إلقاء الخطأ لكي تسجله Laravel في failed_jobs
+        throw $e;
     }
+}
 }
