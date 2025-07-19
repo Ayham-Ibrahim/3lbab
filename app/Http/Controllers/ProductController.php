@@ -145,8 +145,6 @@ class ProductController extends Controller
             $storeId = $store->id; // تجاهل storeId من الطلب وفرض متجر المدير
         }
 
-
-
         $products = Product::with(['images', 'currentOffer'])
             ->select('id', 'name', 'price','store_id', 'category_id')
             ->available(true)
@@ -156,11 +154,16 @@ class ProductController extends Controller
             ->paginate();
 
         $products->getCollection()->transform(function ($product) use ($user) {
-            $offer = $product->currentOffer->first();
+            $price = is_numeric($product->price) ? $product->price : 0;
 
-            $product->final_price = $offer
-                ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
-                : $product->price;
+            $offer = $product->currentOffer->first();
+            $discountPercentage = $offer?->discount_percentage ?? 0;
+
+            $finalPrice = ($offer && $discountPercentage > 0)
+                ? round($price - ($price * $discountPercentage / 100), 2)
+                : $price;
+
+            $product->final_price = $finalPrice;
 
             $product->is_favourite = $user
                 ? $product->favourites->contains('user_id', $user->id)
