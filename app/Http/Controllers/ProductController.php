@@ -153,15 +153,22 @@ class ProductController extends Controller
             ->searchByName($request->input('search'))
             ->paginate();
 
+        // $data->getCollection()->transform(function ($product) {
+        //     $offer = $product->currentOffer->first();
+        //     $product->final_price = $offer
+        //         ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
+        //         : $product->price;
+        //     return $product;
+        // });
+
         $products->getCollection()->transform(function ($product) use ($user) {
-            $price = is_numeric($product->price) ? $product->price : 0;
 
             $offer = $product->currentOffer->first();
             $discountPercentage = $offer?->discount_percentage ?? 0;
 
             $finalPrice = ($offer && $discountPercentage > 0)
-                ? round($price - ($price * $discountPercentage / 100), 2)
-                : $price;
+                ? round($product->price - ($product->price * $discountPercentage / 100), 2)
+                : $product->price;
 
             $product->final_price = $finalPrice;
 
