@@ -368,6 +368,7 @@ class ProductController extends Controller
      */
     public function getFavourites(Request $request)
     {
+        $user = Auth::user();
         $products = Auth::user()->favouriteProducts()
             ->with(['images'])
             ->select('products.id', 'products.name', 'products.price')
@@ -376,6 +377,24 @@ class ProductController extends Controller
             ->availableInCategory($request->input('category'))
             ->searchByName($request->input('search'))
             ->paginate();
+        
+        $products->getCollection()->transform(function ($product) use ($user) {
+
+            $offer = $product->currentOffer->first();
+            $discountPercentage = $offer?->discount_percentage ?? 0;
+
+            $finalPrice = ($offer && $discountPercentage > 0)
+                ? round($product->price - ($product->price * $discountPercentage / 100), 2)
+                : $product->price;
+
+            $product->final_price = $finalPrice;
+
+            $product->is_favourite = $user
+                ? $product->favourites->contains('user_id', $user->id)
+                : false;
+
+            return $product;
+        });
 
         return $this->paginate($products, 'Favourite Products retrieved successfully');
     }
