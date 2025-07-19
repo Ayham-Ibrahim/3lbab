@@ -12,7 +12,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-
+use Illuminate\Console\Scheduling\Schedule;
 
 /**
  * Handles formatting API exceptions into a standardized JSON response.
