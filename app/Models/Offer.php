@@ -22,6 +22,7 @@ class Offer extends Model
         'ends_at',
         'is_available',
     ];
+    protected $primaryKey = 'id';
 
     /**
      * The attributes that should be cast.
