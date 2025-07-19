@@ -153,14 +153,6 @@ class ProductController extends Controller
             ->searchByName($request->input('search'))
             ->paginate();
 
-        // $data->getCollection()->transform(function ($product) {
-        //     $offer = $product->currentOffer->first();
-        //     $product->final_price = $offer
-        //         ? round($product->price - ($product->price * $offer->discount_percentage / 100), 2)
-        //         : $product->price;
-        //     return $product;
-        // });
-
         $products->getCollection()->transform(function ($product) use ($user) {
 
             $offer = $product->currentOffer->first();

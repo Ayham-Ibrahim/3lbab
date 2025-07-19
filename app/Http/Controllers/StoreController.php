@@ -106,11 +106,29 @@ class StoreController extends Controller
                     ->select('id', 'category_id', 'store_id', 'name', 'price')
                     ->with(['images' => function ($query) {
                         $query->orderBy('id', 'asc')->take(1);
-                    }]);
+                    },
+                    'currentOffer'
+                ]);
             }
         ])
             ->available(true)
             ->findOrFail($id);
+
+        $store->categories->each(function ($category) {
+            $category->products->transform(function ($product) {
+                $price = is_numeric($product->price) ? $product->price : 0;
+                $offer = $product->currentOffer->first();
+                $discountPercentage = $offer?->discount_percentage ?? 0;
+
+                $finalPrice = ($offer && $discountPercentage > 0)
+                    ? round($price - ($price * $discountPercentage / 100), 2)
+                    : $price;
+
+                $product->final_price = $finalPrice;
+
+                return $product;
+            });
+        });
 
         return response()->json($store);
     }
