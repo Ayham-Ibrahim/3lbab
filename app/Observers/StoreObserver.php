@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Store;
 use App\Jobs\SendBroadcastNotificationJob;
+use App\Jobs\NotifyManagerOfStoreStatusJob;
 
 class StoreObserver
 {
@@ -27,7 +28,14 @@ class StoreObserver
      */
     public function updated(Store $store): void
     {
-        //
+        if ($store->isDirty('is_available')) {
+            $store->load('manager');
+
+            $status = $store->is_available ? 'available' : 'unavailable';
+            Log::info("Store ID {$store->id} status changed to {$status}. Dispatching notification job.");
+            
+            NotifyManagerOfStoreStatusJob::dispatch($store, $store->is_available);
+        }
     }
 
     /**

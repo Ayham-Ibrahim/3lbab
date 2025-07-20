@@ -8,11 +8,14 @@ use App\Services\FcmService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
 
 class NotifyStoreManagerOfOfferApprovalJob implements ShouldQueue
 {
-    use Queueable;
-
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
      /**
      * The number of seconds the job can run before timing out.
      *
