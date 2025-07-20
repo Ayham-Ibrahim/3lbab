@@ -7,6 +7,7 @@ use App\Models\Offer;
 use App\Services\FcmService;
 use Illuminate\Support\Facades\Log;
 use App\Jobs\SendNewOfferNotificationJob;
+use App\Jobs\NotifyStoreManagerOfOfferApprovalJob;
 
 class OfferObserver
 {
@@ -46,32 +47,14 @@ class OfferObserver
     public function updated(Offer $offer): void
     {
         if ($offer->isDirty('is_available') && $offer->is_available) {
+            $offer->load(['store.manager']);
+            \Log::info("Offer ID {$offer->id} approved. Dispatching jobs.");
+            // المهمة 1: إرسال إشعار جماعي للعملاء
+            SendNewOfferNotificationJob::dispatch($offer);
             \Log::info('arrive to the job');
-            SendNewOfferNotificationJob::dispatch($offer->load('store'));
+            NotifyStoreManagerOfOfferApprovalJob::dispatch($offer);
         }
     }
 
-    /**
-     * Handle the Offer "deleted" event.
-     */
-    public function deleted(Offer $offer): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Offer "restored" event.
-     */
-    public function restored(Offer $offer): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Offer "force deleted" event.
-     */
-    public function forceDeleted(Offer $offer): void
-    {
-        //
-    }
+    
 }
