@@ -47,6 +47,37 @@ class OfferObserver
     {
         if ($offer->isDirty('is_available') && $offer->is_available) {
             \Log::info('arrive to the job');
+            $manager = $this->offer->store->manager;
+            if (!$manager) {
+                Log::warning("Job [{$this->job->getJobId()}] - Could not find a manager for store ID: {$this->offer->store_id}");
+                return;
+            }
+
+            $fcm = new FcmService();
+            $offerDescription = Str::limit($this->offer->description, 30); 
+
+            foreach ($manager->devices as $device) {
+                try {
+                    $fcm->sendNotification(
+                        $manager,
+                        'تمت الموافقة على عرضك!',
+                        "تهانينا! تمت الموافقة على عرضك '{$offerDescription}' وهو الآن متاح للعملاء.",
+                        $device->fcm_token,
+                        [
+                            'offer_id' => (string) $this->offer->id,
+                            'store_id' => (string) $this->offer->store_id,
+                            'type' => 'offer_approved' 
+                        ]
+                    );
+                } catch (\Throwable $e) {
+                    $errorMessage = $e->getMessage();
+                    Log::error("Job [{$this->job->getJobId()}] - Failed to send approval notification to manager {$manager->id} on device {$device->id}: " . $errorMessage);
+                    if (str_contains($errorMessage, 'UNREGISTERED')) {
+                        Log::info("Job [{$this->job->getJobId()}] - Deleting unregistered device for manager. Device ID: {$device->id}");
+                        $device->delete();
+                    }
+                }
+            }
             SendNewOfferNotificationJob::dispatch($offer->load('store'));
         }
     }
