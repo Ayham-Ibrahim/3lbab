@@ -32,3 +32,14 @@ Route::get('/clear-cache', function() {
         Artisan::call('view:clear');
         return '<h1>Cache Cleared and Recached Successfully!</h1><p>You can now delete this route from web.php</p>';
 });
+
+
+
+
+Route::get('/cron', function() { 
+    Artisan::call('queue:work --stop-when-empty'); 
+    \Log::info('job work now');
+    return true;
+});
+
+
