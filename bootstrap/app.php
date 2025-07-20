@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Console\Scheduling\Schedule;
 
 
-if (!function_exists('handleApiExceptions')) {
+// if (!function_exists('handleApiExceptions')) {
 
     /**
      * Handles formatting API exceptions into a standardized JSON response.
@@ -81,7 +81,7 @@ if (!function_exists('handleApiExceptions')) {
     
         return response()->json($payload, $responseDetails['statusCode']);
     }
-}
+// }
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -111,7 +111,4 @@ return Application::configure(basePath: dirname(__DIR__))
                 return handleApiExceptions($e, $request);
             }
         });
-    })->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
-        // أضفنا اسم الاتصال 'database' بشكل صريح
-        $schedule->command('queue:work database --stop-when-empty -v')->everyMinute();
     })->create();
