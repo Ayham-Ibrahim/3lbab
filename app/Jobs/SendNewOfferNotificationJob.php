@@ -14,6 +14,12 @@ class SendNewOfferNotificationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * The number of seconds the job can run before timing out.
+     *
+     * @var int
+     */
+    public $timeout = 300;
     protected $offer;
 
     /**
@@ -56,6 +62,11 @@ class SendNewOfferNotificationJob implements ShouldQueue
                         );
                     } catch (\Throwable $e) {
                         \Log::error("Job [{$this->job->getJobId()}]: Failed to send to user {$user->id} device {$device->id}: " . $e->getMessage());
+                        $errorMessage = $e->getMessage();
+                        if (str_contains($errorMessage, 'UNREGISTERED') || str_contains($errorMessage, 'NotRegistered')) {
+                            \Log::info("Deleting unregistered FCM token for device ID: {$device->id}");
+                            $device->delete(); 
+                        }
                     }
                 }
             }

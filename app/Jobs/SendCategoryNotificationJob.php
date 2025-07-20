@@ -17,6 +17,12 @@ class SendCategoryNotificationJob implements ShouldQueue
 
     protected $category;
 
+    /**
+     * The number of seconds the job can run before timing out.
+     *
+     * @var int
+     */
+    public $timeout = 300;
 
     /**
      * Create a new job instance.
@@ -54,6 +60,11 @@ class SendCategoryNotificationJob implements ShouldQueue
                     );
                 } catch (\Throwable $e) {
                     \Log::error("فشل إرسال إشعار إلى المستخدم {$user->id} على الجهاز {$device->id}: {$e->getMessage()}");
+                    $errorMessage = $e->getMessage();
+                    if (str_contains($errorMessage, 'UNREGISTERED') || str_contains($errorMessage, 'NotRegistered')) {
+                        \Log::info("Deleting unregistered FCM token for device ID: {$device->id}");
+                        $device->delete(); 
+                    }
                 }
             }
         }
