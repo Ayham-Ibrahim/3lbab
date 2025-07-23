@@ -93,11 +93,13 @@ class ComplaintController extends Controller
             $complaints = Complaint::with([
                 'customer:id,name',
                 'manager:id,name'
-            ])->readStatus($isReadedFilter)
+            ])
+                ->myComplaint(false)
+                ->readStatus($isReadedFilter)
                 ->latest()
                 ->get();
         }
-        
+
         $complaints = Complaint::with([
             'customer:id,name',
             'manager:id,name'
