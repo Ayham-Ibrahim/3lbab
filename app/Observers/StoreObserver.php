@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Store;
+use Illuminate\Support\Facades\Log;
 use App\Jobs\SendBroadcastNotificationJob;
 use App\Jobs\NotifyManagerOfStoreStatusJob;
 
