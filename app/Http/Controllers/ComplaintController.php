@@ -88,6 +88,16 @@ class ComplaintController extends Controller
             ? filter_var($request->input('myComplaint'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
             : null;
 
+        $user = Auth::user();
+        if ($user && $user->hasRole('admin')) {
+            $complaints = Complaint::with([
+                'customer:id,name',
+                'manager:id,name'
+            ])->readStatus($isReadedFilter)
+                ->latest()
+                ->get();
+        }
+        
         $complaints = Complaint::with([
             'customer:id,name',
             'manager:id,name'

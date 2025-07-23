@@ -103,7 +103,7 @@ class ProductController extends Controller
             ->whereHas('store', function ($q) {
                 $q->where('manager_id', Auth::id());
             })
-            ->available($is_available)
+            // ->available($is_available)
             ->store(($request->input('store')))
             ->category(($request->input('category')))
             ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
