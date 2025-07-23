@@ -100,12 +100,10 @@ class StoreStoreRequest extends BaseFormRequest
             ],
             'whatsup_link' => [
                 'nullable',
-                'url',
                 'max:255'
             ],
             'telegram_link' => [
                 'nullable',
-                'url',
                 'max:255'
             ],
             'categories' => [

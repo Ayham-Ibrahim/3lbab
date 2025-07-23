@@ -103,7 +103,7 @@ class ProductController extends Controller
             ->whereHas('store', function ($q) {
                 $q->where('manager_id', Auth::id());
             })
-            // ->available($is_available)
+            ->available($is_available)
             ->store(($request->input('store')))
             ->category(($request->input('category')))
             ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
@@ -142,7 +142,7 @@ class ProductController extends Controller
                 return $this->error('No store found for this manager.', 404);
             }
 
-            $storeId = $store->id; // تجاهل storeId من الطلب وفرض متجر المدير
+            $storeId = $store->id; 
         }
 
         $products = Product::with(['images', 'currentOffer'])
