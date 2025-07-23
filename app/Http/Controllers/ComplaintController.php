@@ -89,26 +89,18 @@ class ComplaintController extends Controller
             : null;
 
         $user = Auth::user();
-        if ($user && $user->hasRole('admin')) {
-            $complaints = Complaint::with([
-                'customer:id,name',
-                'manager:id,name'
-            ])
-                ->myComplaint(false)
-                ->readStatus($isReadedFilter)
-                ->latest()
-                ->get();
-        }
-
-        $complaints = Complaint::with([
+        $isAdmin = $user && $user->hasRole('admin');
+        $complaintsQuery = Complaint::with([
             'customer:id,name',
             'manager:id,name'
         ])
-            ->myComplaint(true)
-            ->readStatus($isReadedFilter)
-            ->latest()
-            ->get();
+        ->readStatus($isReadedFilter);
 
+        if ($isAdmin) {
+            $complaints = $complaintsQuery->myComplaint(false)->latest()->get();
+        } else {
+            $complaints = $complaintsQuery->myComplaint(true)->latest()->get();
+        }
         return $this->success($complaints, 'All complaints retrieved successfully.');
     }
 
