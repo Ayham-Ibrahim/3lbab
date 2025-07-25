@@ -38,6 +38,11 @@ class StoreComplaintRequest extends BaseFormRequest
                 'mimes:png,jpg,jpeg',
                 'mimetypes:image/jpeg,image/png,image/jpg',
                 'max:10000'
+            ],
+            'phone' => [
+                'required',
+                'string',
+                'max:255',
             ]
         ];
     }
@@ -52,7 +57,8 @@ class StoreComplaintRequest extends BaseFormRequest
         return [
             'manager_id' => 'المدير',
             'content' => 'محتوى الشكوى',
-            'image' => 'الصورة'
+            'image' => 'الصورة',
+            'phone' => 'رقم الموبايل'
         ];
     }
 

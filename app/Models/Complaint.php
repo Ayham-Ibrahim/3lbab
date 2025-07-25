@@ -18,6 +18,7 @@ class Complaint extends Model
         'customer_id',
         'manager_id',
         'content',
+        'phone',
         'image',
         'is_readed'
     ];

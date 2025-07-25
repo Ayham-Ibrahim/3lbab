@@ -24,6 +24,7 @@ class ComplaintService extends Service
                 'customer_id' => Auth::id(),
                 'manager_id' => $data['manager_id'],
                 'content' => $data['content'],
+                'phone' => $data['phone'],
                 'image' => isset($data['image']) ? FileStorage::storeFile($data['image'], 'Complaint', 'img') : null,
             ]);
         } catch (\Throwable $th) {
