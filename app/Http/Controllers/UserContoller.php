@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Http\Request;
+use App\Services\UserService;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Models\User;
-use App\Services\UserService;
-use Illuminate\Http\Request;
 
 class UserContoller extends Controller
 {
@@ -113,4 +114,34 @@ class UserContoller extends Controller
             200
         );
     }
+
+
+    /**
+     * Delete the authenticated user account
+     */
+    public function deleteAccount(Request $request)
+    {
+        $user_id = Auth::id();
+        $user = User::findOrFail($user_id);
+        if ($user->devices()->exists()) {
+            $user->devices()->delete();
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'message' => 'تم حذف الحساب بنجاح',
+        ]);
+    }
+
+    /**
+     * Get phone of the authenticated user
+     */
+    public function getPhone(Request $request)
+    {
+        return response()->json([
+            'phone' => "1234567890",
+        ]);
+    }
+
 }

@@ -37,6 +37,7 @@ Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 });
+Route::get('/help-phone', [UserContoller::class, 'getPhone']);
 
 /*
 |--------------------------------------------------------------------------
@@ -228,6 +229,7 @@ Route::middleware(['auth:api'])->group(function () {
     */
     Route::apiResource('/users', UserContoller::class);
     Route::patch('users/{user}/toggle-available', [UserContoller::class, 'toggleAvailable']);
+    Route::delete('/delete-my-account', [UserContoller::class, 'deleteAccount']);
 
     /*
     |--------------------------------------------------------------------------
