@@ -140,7 +140,7 @@ class UserContoller extends Controller
     public function getPhone(Request $request)
     {
         return response()->json([
-            'phone' => "1234567890",
+            'phone' => "0962148402",
         ]);
     }
 
