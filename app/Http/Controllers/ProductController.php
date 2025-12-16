@@ -132,6 +132,10 @@ class ProductController extends Controller
      */
     public function getAvailable(Request $request)
     {
+        $page = (int) $request->query('page', 1);
+        if ($page <= 0) {
+            $request->merge(['page' => 1]);
+        }
         $user = Auth::user();
         $storeId = $request->input('store');
         $categoryId = $request->input('category');
