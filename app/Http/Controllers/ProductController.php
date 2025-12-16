@@ -130,53 +130,117 @@ class ProductController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
+    // public function getAvailable(Request $request)
+    // {
+    //     $page = (int) $request->query('page', 1);
+    //     if ($page <= 0) {
+    //         $request->merge(['page' => 1]);
+    //     }
+    //     $user = Auth::user();
+    //     $storeId = $request->input('store');
+    //     $categoryId = $request->input('category');
+
+    //     if ($user && $user->hasRole('storeManager')) {
+    //         $store = Store::where('manager_id', $user->id)->first();
+    //         if (!$store) {
+    //             return $this->error('No store found for this manager.', 404);
+    //         }
+
+    //         $storeId = $store->id; 
+    //     }
+
+    //     $products = Product::with(['images', 'currentOffer'])
+    //         ->select('id', 'name', 'price','store_id', 'category_id')
+    //         ->available(true)
+    //         ->availableInStore($storeId)
+    //         ->availableInCategory($categoryId)
+    //         ->searchByName($request->input('search'))
+    //         ->paginate();
+
+    //     $products->getCollection()->transform(function ($product) use ($user) {
+
+    //         $offer = $product->currentOffer->first();
+    //         $discountPercentage = $offer?->discount_percentage ?? 0;
+
+    //         $finalPrice = ($offer && $discountPercentage > 0)
+    //             ? round($product->price - ($product->price * $discountPercentage / 100), 2)
+    //             : $product->price;
+
+    //         $product->final_price = $finalPrice;
+
+    //         $product->is_favourite = $user
+    //             ? $product->favourites->contains('user_id', $user->id)
+    //             : false;
+
+    //         return $product;
+    //     });
+
+    //     return $this->paginate($products, 'Available Products retrieved successfully');
+    // }
     public function getAvailable(Request $request)
-    {
-        $page = (int) $request->query('page', 1);
-        if ($page <= 0) {
-            $request->merge(['page' => 1]);
-        }
-        $user = Auth::user();
-        $storeId = $request->input('store');
-        $categoryId = $request->input('category');
+{
+    $page = (int) $request->query('page', 1);
 
-        if ($user && $user->hasRole('storeManager')) {
-            $store = Store::where('manager_id', $user->id)->first();
-            if (!$store) {
-                return $this->error('No store found for this manager.', 404);
-            }
-
-            $storeId = $store->id; 
-        }
-
-        $products = Product::with(['images', 'currentOffer'])
-            ->select('id', 'name', 'price','store_id', 'category_id')
-            ->available(true)
-            ->availableInStore($storeId)
-            ->availableInCategory($categoryId)
-            ->searchByName($request->input('search'))
-            ->paginate();
-
-        $products->getCollection()->transform(function ($product) use ($user) {
-
-            $offer = $product->currentOffer->first();
-            $discountPercentage = $offer?->discount_percentage ?? 0;
-
-            $finalPrice = ($offer && $discountPercentage > 0)
-                ? round($product->price - ($product->price * $discountPercentage / 100), 2)
-                : $product->price;
-
-            $product->final_price = $finalPrice;
-
-            $product->is_favourite = $user
-                ? $product->favourites->contains('user_id', $user->id)
-                : false;
-
-            return $product;
-        });
-
-        return $this->paginate($products, 'Available Products retrieved successfully');
+    // 🔴 أي صفحة بعد الأولى → لا بيانات (منع التكرار في Flutter)
+    if ($page > 1) {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Available Products retrieved successfully',
+            'data' => [],
+            'meta' => [
+                'current_page' => $page,
+                'per_page' => 0,
+                'total' => 0,
+                'last_page' => 1,
+            ]
+        ], 200);
     }
+
+    // 🔧 معالجة page=0 القادمة من Flutter
+    if ($page <= 0) {
+        $request->merge(['page' => 1]);
+    }
+
+    $user = Auth::user();
+    $storeId = $request->input('store');
+    $categoryId = $request->input('category');
+
+    if ($user && $user->hasRole('storeManager')) {
+        $store = Store::where('manager_id', $user->id)->first();
+        if (!$store) {
+            return $this->error('No store found for this manager.', 404);
+        }
+
+        $storeId = $store->id;
+    }
+
+    // ✅ نجلب كل المنتجات مرة واحدة
+    $products = Product::with(['images', 'currentOffer', 'favourites'])
+        ->select('id', 'name', 'price', 'store_id', 'category_id')
+        ->available(true)
+        ->availableInStore($storeId)
+        ->availableInCategory($categoryId)
+        ->searchByName($request->input('search'))
+        ->paginate(1000); // رقم كبير يكفي لجلب الكل
+
+    $products->getCollection()->transform(function ($product) use ($user) {
+
+        $offer = $product->currentOffer->first();
+        $discountPercentage = $offer?->discount_percentage ?? 0;
+
+        $product->final_price = ($offer && $discountPercentage > 0)
+            ? round($product->price - ($product->price * $discountPercentage / 100), 2)
+            : $product->price;
+
+        $product->is_favourite = $user
+            ? $product->favourites->contains('user_id', $user->id)
+            : false;
+
+        return $product;
+    });
+
+    return $this->paginate($products, 'Available Products retrieved successfully');
+}
 
     /**
      * Store a newly created resource in storage.
